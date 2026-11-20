@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task details – Guided page · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+/* Breadcrumb */
+.sf-crumbs ol{list-style:none;margin:0;padding:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:13px;line-height:20px}
+.sf-crumbs li{display:inline-flex;align-items:center;min-width:0}
+.sf-crumb-link{display:inline-flex;align-items:center;gap:6px;margin-left:-6px;padding:2px 6px;border-radius:6px;color:#0070FF;font-weight:500;transition:background-color .15s ease}
+.sf-crumb-link:hover{background:#EFF4FF;color:#0070FF}
+.sf-crumb-link:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.sf-crumb-sep{color:#98A2B3}
+.sf-crumb-text{color:#475467;font-weight:500}
+.sf-crumb-current{color:#101828;font-weight:600}
+/* Task summary card (breadcrumb, task meta, status chips, actions) */
+.sf-taskhead{display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px}
+.sf-taskhead-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid #F2F4F7}
+.sf-taskhead-actions{display:flex;align-items:center;gap:8px;flex:none}
+.sf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:9px;border:1px solid #D0D5DD;background:#FFFFFF;font:inherit;font-size:13px;font-weight:600;color:#344054;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.sf-btn:hover{background:#F9FAFB;border-color:#98A2B3}
+.sf-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.sf-btn--icon{width:36px;padding:0;font-size:18px;line-height:1}
+.sf-taskhead-body{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;padding:14px 20px}
+.sf-taskmeta{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;font-size:13px;line-height:20px;color:#475467}
+.sf-taskid{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:#EEF0F3;color:#344054}
+.sf-taskmeta-item{display:inline-flex;align-items:center;gap:6px}
+.sf-taskmeta-item strong{font-weight:600;color:#101828}
+.sf-taskmeta-sep{width:4px;height:4px;border-radius:50%;background:#D0D5DD}
+.sf-stepbar{display:inline-flex;gap:3px}
+.sf-stepbar i{display:block;width:14px;height:4px;border-radius:999px;background:#E4E7EC}
+.sf-stepbar i.on{background:#0070FF}
+.sf-taskchips{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sf-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;line-height:16px;padding:4px 10px;border-radius:999px}
+@media (max-width:640px){.sf-taskhead-top,.sf-taskhead-body{padding-left:16px;padding-right:16px}}
+/* Full form slide-over panel */
+@keyframes fd-fade{from{opacity:0}to{opacity:1}}
+@keyframes fd-slide{from{transform:translateX(32px);opacity:.6}to{transform:none;opacity:1}}
+.fd-overlay{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:rgba(16,24,40,.45);animation:fd-fade .2s ease}
+.fd-scrim{flex:1;border:0;background:transparent;cursor:pointer;padding:0}
+.fd-panel{width:820px;max-width:100%;height:100vh;height:100dvh;box-sizing:border-box;background:#FFFFFF;display:flex;flex-direction:column;box-shadow:-12px 0 32px rgba(16,24,40,.16);animation:fd-slide .24s cubic-bezier(.2,.8,.2,1)}
+.fd-sr{position:absolute;left:-9999px}
+/* Header */
+.fd-head{flex:none;display:flex;flex-direction:column;gap:16px;padding:20px 24px 16px;border-bottom:1px solid #E4E7EC;background:#FFFFFF}
+.fd-head-top{display:flex;align-items:flex-start;gap:16px}
+.fd-head-text{flex:1;min-width:0}
+.fd-head-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;line-height:18px;color:#475467}
+.fd-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:#ECFDF3;color:#067647;font-weight:600}
+.fd-title{margin:8px 0 2px;font-size:20px;line-height:28px;font-weight:600;color:#101828}
+.fd-sub{font-size:13px;line-height:20px;color:#475467}
+.fd-head-actions{display:flex;align-items:center;gap:6px;flex:none}
+.fd-icon-btn{width:36px;height:36px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:9px;border:1px solid #D0D5DD;background:#FFFFFF;color:#344054;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease}
+.fd-icon-btn:hover{background:#F9FAFB;border-color:#98A2B3;color:#101828}
+.fd-icon-btn:focus-visible,.fd-btn:focus-visible,.fd-nav-link:focus-visible,.fd-ask-btn:focus-visible,.fd-file:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.fd-close{border-color:transparent;background:#F2F4F7}
+.fd-close:hover{background:#E4E7EC;border-color:transparent}
+.fd-head-divider{width:1px;height:24px;margin:0 4px;background:#E4E7EC}
+.fd-toolbar{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap}
+.fd-search{flex:1 1 260px;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;box-sizing:border-box;border-radius:9px;background:#FFFFFF;border:1px solid #D0D5DD;transition:border-color .15s ease,box-shadow .15s ease}
+.fd-search:focus-within{border-color:#84ADFF;box-shadow:0 0 0 3px #EFF4FF}
+.fd-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:14px;color:#101828}
+.fd-search input::placeholder{color:#667085}
+.fd-check{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#344054;cursor:pointer;user-select:none}
+.fd-check input{width:16px;height:16px;margin:0;accent-color:#0070FF;cursor:pointer}
+/* Body */
+.fd-body{flex:1;min-height:0;display:flex}
+.fd-nav{flex:0 0 184px;box-sizing:border-box;overflow-y:auto;padding:20px 12px;border-right:1px solid #EAECF0;background:#F9FAFB;display:flex;flex-direction:column;gap:2px}
+.fd-nav-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;line-height:20px;color:#344054;transition:background-color .15s ease,color .15s ease}
+.fd-nav-link:hover{background:#EFF4FF;color:#0070FF}
+.fd-nav-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#EFF4FF;color:#0070FF;font-size:11px;font-weight:700}
+.fd-content{flex:1;min-width:0;overflow-y:auto;overscroll-behavior:contain;padding:20px 24px 28px;display:flex;flex-direction:column;gap:16px;background:#F5F7FA}
+.fd-section{flex:none;scroll-margin-top:16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px;overflow:hidden}
+.fd-section-title{margin:0;padding:12px 16px;font-size:14px;font-weight:600;line-height:20px;color:#101828;background:#F9FAFB;border-bottom:1px solid #EAECF0}
+.fd-row + .fd-row{border-top:1px solid #F2F4F7}
+.fd-row-main{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 16px;min-height:52px;box-sizing:border-box}
+.fd-key{flex:0 0 180px;font-size:13px;line-height:20px;color:#5D6679}
+.fd-thread{flex:none;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EFF4FF;color:#0070FF}
+.fd-ask-btn{width:32px;height:32px;flex:none;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:8px;border:1px solid transparent;background:transparent;color:#667085;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease}
+.fd-row:hover .fd-ask-btn{border-color:#E4E7EC;background:#FFFFFF}
+.fd-ask-btn:hover{color:#0070FF;border-color:#B2CCFF!important;background:#EFF4FF!important}
+.fd-ask{display:flex;flex-direction:column;gap:8px;padding:0 16px 14px 208px}
+.fd-ask textarea{font:inherit;font-size:13px;padding:10px 12px;border:1px solid #B2CCFF;border-radius:8px;resize:vertical;box-sizing:border-box;width:100%}
+.fd-ask textarea:focus{outline:none;border-color:#84ADFF;box-shadow:0 0 0 3px #EFF4FF}
+.fd-ask-actions{display:flex;gap:8px;justify-content:flex-end}
+.fd-files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px}
+.fd-file{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #E4E7EC;border-radius:10px;color:#101828;font-size:13px;transition:background-color .15s ease,border-color .15s ease}
+.fd-file:hover{background:#F9FAFB;border-color:#D0D5DD;color:#101828}
+.fd-file-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:none;border-radius:8px;background:#F2F4F7}
+.fd-file-text{display:flex;flex-direction:column;min-width:0}
+.fd-file-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd-file-sub{font-size:12px;color:#0070FF;font-weight:500}
+/* Footer */
+.fd-foot{flex:none;display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;padding:16px 24px;background:#FFFFFF;border-top:1px solid #E4E7EC}
+.fd-foot-hint{flex:1 1 220px;display:flex;align-items:center;gap:8px;font-size:13px;color:#475467}
+.fd-foot-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fd-btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;box-sizing:border-box;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:background-color .15s ease,border-color .15s ease}
+.fd-btn--sm{height:34px;padding:0 12px;border-radius:8px;font-size:13px}
+.fd-btn--primary{border:0;background:#0070FF;color:#FFFFFF}
+.fd-btn--primary:hover{background:#0059CC;color:#FFFFFF}
+.fd-btn--secondary{border:1px solid #B2CCFF;background:#EFF4FF;color:#0070FF}
+.fd-btn--secondary:hover{background:#E0EAFF;border-color:#84ADFF}
+.fd-btn--neutral{border:1px solid #D0D5DD;background:#FFFFFF;color:#344054;font-weight:500}
+.fd-btn--neutral:hover{background:#F9FAFB;border-color:#98A2B3}
+/* Tablet: section index becomes a scrollable chip row */
+@media (max-width:900px){
+  .fd-body{flex-direction:column}
+  .fd-nav{flex:none;flex-direction:row;gap:6px;overflow-x:auto;overflow-y:hidden;padding:10px 24px;border-right:0;border-bottom:1px solid #EAECF0;scrollbar-width:none}
+  .fd-nav::-webkit-scrollbar{display:none}
+  .fd-nav-link{flex:none;padding:6px 12px;border:1px solid #E4E7EC;border-radius:999px;background:#FFFFFF;white-space:nowrap}
+  .fd-content{flex:1}
+}
+/* Mobile */
+@media (max-width:640px){
+  .fd-head{padding:16px 16px 14px;gap:14px}
+  .fd-head-top{flex-wrap:wrap}
+  .fd-head-text{flex:1 1 100%;order:2}
+  .fd-head-actions{order:1;width:100%;justify-content:flex-end}
+  .fd-title{margin-top:6px}
+  .fd-nav{padding:10px 16px}
+  .fd-content{padding:16px}
+  .fd-row-main{flex-wrap:wrap;gap:4px 12px;padding:12px 12px 12px 16px}
+  .fd-key{flex:1 1 100%}
+  .fd-row-main > span:nth-child(2){flex:1 1 0}
+  .fd-ask{padding:0 16px 14px}
+  .fd-files{grid-template-columns:minmax(0,1fr)}
+  .fd-foot{padding:14px 16px}
+  .fd-foot-actions{width:100%;flex-direction:column-reverse;align-items:stretch}
+  .fd-foot-actions .fd-btn{width:100%}
+}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="TaskGuided"></div>
+<template data-dc-component="TaskGuided">
+<div style="position: relative; min-height: 1200px; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Left sidebar (shared: assets/app-shell.js) -->
+  <dc-import name="AppSidebar" active="home"></dc-import>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column">
+    <!-- Top header (shared: assets/app-shell.js) -->
+    <dc-import name="AppTopbar" active="home" inset="{{false}}" title="{{taskTitle}}" as-h1="{{true}}"></dc-import>
+    <div style="flex: 1; padding: 22px 32px 32px; display: flex; flex-direction: column; gap: 20px">
+
+      <!-- Task summary: breadcrumb + actions, then task meta + status chips -->
+      <section class="sf-taskhead" aria-label="Task summary">
+      <div class="sf-taskhead-top">
+      <nav aria-label="Breadcrumb" class="sf-crumbs">
+        <ol>
+          <li><a href="home.html" class="sf-crumb-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>My tasks</a></li>
+          <li class="sf-crumb-sep" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></li>
+          <li><span class="sf-crumb-text">Permit To Work</span></li>
+          <li class="sf-crumb-sep" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></li>
+          <li><span class="sf-crumb-current" aria-current="page">INS0499</span></li>
+        </ol>
+      </nav>
+        <div class="sf-taskhead-actions">
+          <button type="button" class="sf-btn" style="border-color: #B2CCFF; background: #EFF4FF; color: #0070FF">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 11l2 2 4-4"/></svg>
+            Reassign
+          </button>
+          <button type="button" class="sf-btn sf-btn--icon" aria-label="More actions">⋯</button>
+        </div>
+      </div>
+      <div class="sf-taskhead-body">
+        <div class="sf-taskchips">
+          <span class="sf-chip" style="{{statusChipStyle}}">{{statusChip}}</span>
+          <span class="sf-chip" style="background: #FFFAEB; color: #B54708">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+            Medium priority
+          </span>
+          <span class="sf-chip" style="background: #F2F4F7; color: #475467">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            No due date
+          </span>
+        </div>
+      </div>
+      </section>
+
+      <!-- Stepper -->
+      <ol aria-label="Workflow progress" style="list-style: none; margin: 0; padding: 16px 20px; background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(max(170px, 22%), 1fr)); gap: 12px">
+        <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+          <li style="display: flex; gap: 10px; align-items: flex-start">
+            <span style="{{s.badge}}">{{s.mark}}</span>
+            <span style="display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 14px; font-weight: 600">{{s.name}}</span>
+              <span style="font-size: 12px; color: #475467">{{s.who}}</span>
+            </span>
+          </li>
+        </sc-for>
+      </ol>
+
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start">
+        <!-- Main column -->
+        <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+          <!-- Returned banner -->
+          <sc-if value="{{act.returned}}" hint-placeholder-val="{{false}}">
+            <div role="alert" style="display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: #FFFAEB; border: 1px solid #FEC84B">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B54708" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-1"/></svg>
+              <div style="font-size: 14px; line-height: 1.5; color: #7A2E0E"><strong>Returned to you by [HSE Officer] · [date]</strong><br>"[Reason, e.g. Gas test reading missing for zone B]"</div>
+            </div>
+          </sc-if>
+
+          <!-- ACTION AREA (Option A) -->
+          <section aria-label="Your action" style="{{act.cardStyle}}">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span style="{{act.eyebrowStyle}}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{act.eyebrowIcon}}"/></svg>
+                {{act.eyebrow}}
+              </span>
+              <span style="flex: 1"></span>
+              <span style="font-size: 13px; font-weight: 600; color: #344054">{{act.count}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 700">{{act.heading}}</h2>
+              <span style="position: relative; display: inline-flex">
+                <button onClick="{{toggleTip1}}" aria-label="About this step" aria-expanded="{{tip1}}" style="width: 32px; height: 32px; padding: 0; border: 0; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer">
+                  <span style="width: 20px; height: 20px; border-radius: 50%; background: #0070FF; color: #FFFFFF; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">?</span>
+                </button>
+                <sc-if value="{{tip1}}" hint-placeholder-val="{{false}}">
+                  <span role="tooltip" style="position: absolute; top: 36px; left: -8px; z-index: 20; width: 320px; padding: 10px 12px; border-radius: 10px; background: #101828; color: #FFFFFF; font-size: 13px; font-weight: 400; line-height: 1.5; box-shadow: 0 8px 24px rgba(16,24,40,.24)">{{act.sub}}</span>
+                </sc-if>
+              </span>
+            </div>
+            <sc-if value="{{act.showBar}}" hint-placeholder-val="{{true}}">
+              <div style="height: 6px; border-radius: 999px; background: #C7D7FE; overflow: hidden"><div style="{{act.bar}}"></div></div>
+            </sc-if>
+            <sc-for list="{{actRows}}" as="r" hint-placeholder-count="2">
+              <div style="{{r.rowStyle}}">
+                <span style="{{r.iconStyle}}">{{r.mark}}</span>
+                <span style="flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                  <span style="{{r.titleStyle}}">{{r.title}}</span>
+                  <span style="font-size: 12px; color: #475467">{{r.meta}}</span>
+                  <sc-if value="{{r.prefilled}}" hint-placeholder-val="{{false}}"><span style="align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #F4F3FF; color: #5925DC">Pre-filled from contractor</span></sc-if>
+                </span>
+                <a href="review-workspace.html" style="{{r.btnStyle}}">{{r.label}}</a>
+              </div>
+            </sc-for>
+            <sc-if value="{{act.ready}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 4px">
+                <button onClick="{{approve}}" style="height: 48px; padding: 0 22px; border-radius: 10px; border: 0; background: #0070FF; font: inherit; font-size: 15px; font-weight: 700; color: #FFFFFF; cursor: pointer">Approve &amp; send to HSE</button>
+                <button style="height: 48px; padding: 0 18px; border-radius: 10px; border: 1px solid #D0D5DD; background: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600; color: #344054; cursor: pointer">Send back to contractor</button>
+                <span style="flex: 1"></span>
+                <button style="height: 48px; padding: 0 12px; border-radius: 10px; border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 600; color: #B42318; cursor: pointer">Reject permit</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{act.submitted}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 4px">
+                <a href="home.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 10px; background: #0070FF; font-size: 15px; font-weight: 700; color: #FFFFFF">Next task →</a>
+                <a href="home.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 18px; border-radius: 10px; border: 1px solid #D0D5DD; background: #FFFFFF; font-size: 15px; font-weight: 600; color: #344054">Back to My tasks</a>
+                <span style="flex: 1"></span>
+                <button onClick="{{undo}}" style="height: 48px; padding: 0 14px; border-radius: 10px; border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 600; color: #0070FF; cursor: pointer">Undo · 0:09</button>
+              </div>
+            </sc-if>
+          </section>
+
+          <!-- Supervisor Review: your filled-in values -->
+          <sc-if value="{{rv.show}}" hint-placeholder-val="{{false}}">
+            <section aria-label="Supervisor Review – your entries" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 18px">
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+                <button onClick="{{toggleRv}}" aria-expanded="{{rvOpen}}" aria-label="Show or hide Supervisor Review entries" style="width: 36px; height: 36px; flex: none; padding: 0; border-radius: 9px; border: 1px solid #D0D5DD; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #344054">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{rvChevron}}"></path></svg>
+                </button>
+                <div style="flex: 1 1 260px">
+                  <h2 style="margin: 0; font-size: 18px; font-weight: 700">Supervisor Review</h2>
+                  <div style="font-size: 13px; color: #475467; margin-top: 4px">{{rv.meta}}</div>
+                </div>
+                <sc-if value="{{rv.editable}}" hint-placeholder-val="{{true}}">
+                  <a href="review-workspace.html" style="display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 9px; border: 1px solid #B2CCFF; background: #EFF4FF; font-size: 14px; font-weight: 600; color: #0070FF">Edit entries →</a>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{rvOpen}}" hint-placeholder-val="{{true}}">
+              <!-- Permit to work -->
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                  <h3 style="margin: 0; font-size: 15px; font-weight: 700">Permit to work</h3>
+                  <span style="font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #ECFDF3; color: #067647">✓ Confirmed</span>
+                </div>
+                <dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; padding: 16px; border-radius: 12px; background: #F9FAFB">
+                  <sc-for list="{{rv.permit}}" as="p" hint-placeholder-count="6">
+                    <div><dt style="font-size: 12px; color: #5D6679">{{p.k}}</dt><dd style="margin: 3px 0 0; font-size: 14px; font-weight: 500">{{p.v}}</dd></div>
+                  </sc-for>
+                </dl>
+              </div>
+
+              <!-- Hazard & safety checklist -->
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                  <h3 style="margin: 0; font-size: 15px; font-weight: 700">Hazard &amp; safety checklist</h3>
+                  <span style="{{rv.checkChipStyle}}">{{rv.checkChip}}</span>
+                </div>
+                <div style="border: 1px solid #EEF0F3; border-radius: 12px; overflow: hidden">
+                  <sc-for list="{{rv.answers}}" as="a" hint-placeholder-count="6">
+                    <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-bottom: 1px solid #EEF0F3">
+                      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+                        <span style="flex: 1 1 260px; font-size: 14px; color: #101828">{{a.n}}. {{a.text}}</span>
+                        <span style="{{a.style}}">{{a.label}}</span>
+                      </div>
+                      <sc-if value="{{a.note}}" hint-placeholder-val="{{false}}">
+                        <div style="font-size: 13px; color: #912018; padding: 8px 10px; border-radius: 8px; background: #FEF3F2">Note to contractor: {{a.note}}</div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              </sc-if>
+            </section>
+          </sc-if>
+
+          <section aria-label="Contractor's request" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+              <button onClick="{{toggleCr}}" aria-expanded="{{crOpen}}" aria-label="Show or hide Contractor's request" style="width: 36px; height: 36px; flex: none; padding: 0; border-radius: 9px; border: 1px solid #D0D5DD; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #344054">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{crChevron}}"></path></svg>
+              </button>
+              <div style="flex: 1 1 260px">
+                <div style="display: flex; align-items: center; gap: 6px">
+                  <h2 style="margin: 0; font-size: 18px; font-weight: 700">Contractor's request</h2>
+                  <span style="position: relative; display: inline-flex">
+                    <button onClick="{{toggleTip2}}" aria-label="About these fields" aria-expanded="{{tip2}}" style="width: 32px; height: 32px; padding: 0; border: 0; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer">
+                      <span style="width: 20px; height: 20px; border-radius: 50%; background: #0070FF; color: #FFFFFF; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">?</span>
+                    </button>
+                    <sc-if value="{{tip2}}" hint-placeholder-val="{{false}}">
+                      <span role="tooltip" style="position: absolute; top: 36px; left: -8px; z-index: 20; width: 300px; padding: 10px 12px; border-radius: 10px; background: #101828; color: #FFFFFF; font-size: 13px; font-weight: 400; line-height: 1.5; box-shadow: 0 8px 24px rgba(16,24,40,.24)">Key fields shown here so you can review without leaving the page. Admins choose which fields appear.</span>
+                    </sc-if>
+                  </span>
+                </div>
+                <div style="font-size: 13px; color: #475467; margin-top: 4px">Contractor PTW Request · submitted 19 Oct 2026 by sreekutty</div>
+              </div>
+              <button onClick="{{openDrawer}}" style="height: 40px; padding: 0 14px; border-radius: 9px; border: 1px solid #B2CCFF; background: #EFF4FF; font: inherit; font-size: 14px; font-weight: 600; color: #0070FF; cursor: pointer">Open full form →</button>
+            </div>
+            <sc-if value="{{crOpen}}" hint-placeholder-val="{{true}}">
+              <dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; padding: 16px; border-radius: 12px; background: #F9FAFB">
+                <sc-for list="{{summary}}" as="k" hint-placeholder-count="6">
+                  <div><dt style="font-size: 12px; color: #5D6679">{{k.k}}</dt><dd style="margin: 3px 0 0; font-size: 14px; font-weight: 500">{{k.v}}</dd></div>
+                </sc-for>
+              </dl>
+            </sc-if>
+          </section>
+
+          <section aria-label="Discussion" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+            <h2 style="margin: 0; font-size: 18px; font-weight: 700">Discussion</h2>
+            <label style="display: flex; flex-direction: column; gap: 6px">
+              <span style="font-size: 13px; color: #475467">Ask the contractor or HSE a question — they'll be notified</span>
+              <textarea rows="3" placeholder="Write a comment… use @ to mention someone" style="font: inherit; font-size: 14px; padding: 12px; border: 1px solid #D0D5DD; border-radius: 10px; resize: vertical"></textarea>
+            </label>
+            <div style="display: flex; justify-content: flex-end"><button style="height: 40px; padding: 0 16px; border-radius: 9px; border: 0; background: #EFF4FF; color: #0070FF; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Post comment</button></div>
+          </section>
+        </div>
+
+        <!-- Right rail -->
+        <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+          <section aria-label="Details" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+            <h2 style="margin: 0; font-size: 16px; font-weight: 700">Details</h2>
+            <dl style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+              <sc-for list="{{details}}" as="d" hint-placeholder-count="5">
+                <div style="display: flex; justify-content: space-between; gap: 12px">
+                  <dt style="font-size: 13px; color: #5D6679">{{d.k}}</dt>
+                  <dd style="{{d.style}}">{{d.v}}</dd>
+                </div>
+              </sc-for>
+            </dl>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 32px; background: #FFFFFF; border-top: 1px solid #E4E7EC; box-shadow: 0 -4px 12px rgba(16,24,40,.05)">
+      <span style="flex: 1 1 260px; font-size: 14px; color: #475467">{{act.barHint}}</span>
+      <sc-if value="{{act.barSecondary}}" hint-placeholder-val="{{true}}">
+        <button style="height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #D0D5DD; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #344054; cursor: pointer">{{act.barSecondary}}</button>
+      </sc-if>
+      <sc-if value="{{act.barPrimary}}" hint-placeholder-val="{{true}}">
+        <button disabled style="height: 44px; padding: 0 20px; border-radius: 10px; border: 0; background: #C7D7FE; font: inherit; font-size: 14px; font-weight: 600; color: #1E3A8A; cursor: not-allowed">{{act.barPrimary}}</button>
+      </sc-if>
+    </div>
+  </main>
+
+  <!-- Full form: slide-over panel -->
+  <sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+    <div class="fd-overlay">
+      <button onClick="{{closeDrawer}}" aria-label="Close full form" class="fd-scrim"></button>
+      <section role="dialog" aria-modal="true" aria-label="Permit to work – full form" class="fd-panel">
+
+        <!-- Panel header -->
+        <header class="fd-head">
+          <div class="fd-head-top">
+            <div class="fd-head-text">
+              <div class="fd-head-meta">
+                <span class="fd-status">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  Submitted · read-only
+                </span>
+                <span>Step 1 · Contractor PTW Request</span>
+              </div>
+              <h2 class="fd-title">Permit to work</h2>
+              <div class="fd-sub">Submitted 19 Oct 2026 by sreekutty · 16 fields · 2 attachments</div>
+            </div>
+            <div class="fd-head-actions">
+              <button aria-label="Download PDF" title="Download PDF" class="fd-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              </button>
+              <button aria-label="Print" title="Print" class="fd-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+              </button>
+              <a href="review-workspace.html" aria-label="Open beside your form" title="Open beside your form" class="fd-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3zM12 3v18"/></svg>
+              </a>
+              <span class="fd-head-divider" aria-hidden="true"></span>
+              <button onClick="{{closeDrawer}}" aria-label="Close" title="Close" class="fd-icon-btn fd-close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="fd-toolbar">
+            <label class="fd-search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"/></svg>
+              <span class="fd-sr">Find in this form</span>
+              <input type="search" placeholder="Find a field in this form">
+            </label>
+            <label class="fd-check">
+              <input type="checkbox" checked="{{hideEmpty}}" onChange="{{toggleEmpty}}">
+              Hide empty fields
+            </label>
+          </div>
+        </header>
+
+        <!-- Panel body: section index + content -->
+        <div class="fd-body">
+          <nav aria-label="Form sections" class="fd-nav">
+            <sc-for list="{{sections}}" as="s" hint-placeholder-count="5">
+              <a href="#{{s.id}}" class="fd-nav-link">{{s.title}}<sc-if value="{{s.commentCount}}" hint-placeholder-val="{{false}}"><span class="fd-nav-count">{{s.commentCount}}</span></sc-if></a>
+            </sc-for>
+            <a href="#attachments" class="fd-nav-link">Attachments</a>
+          </nav>
+
+          <div class="fd-content">
+            <sc-for list="{{sections}}" as="s" hint-placeholder-count="4">
+              <div id="{{s.id}}" class="fd-section">
+                <h3 class="fd-section-title">{{s.title}}</h3>
+                <div class="fd-rows">
+                  <sc-for list="{{s.rows}}" as="r" hint-placeholder-count="3">
+                    <div class="fd-row">
+                      <div class="fd-row-main">
+                        <span class="fd-key">{{r.k}}</span>
+                        <span style="{{r.valStyle}}">{{r.v}}</span>
+                        <sc-if value="{{r.thread}}" hint-placeholder-val="{{false}}"><span class="fd-thread">{{r.thread}}</span></sc-if>
+                        <button onClick="{{r.ask}}" aria-label="{{r.askLabel}}" title="{{r.askLabel}}" class="fd-ask-btn">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </button>
+                      </div>
+                      <sc-if value="{{r.asking}}" hint-placeholder-val="{{false}}">
+                        <div class="fd-ask">
+                          <textarea rows="2" placeholder="Ask sreekutty about this field…"></textarea>
+                          <div class="fd-ask-actions">
+                            <button onClick="{{r.ask}}" class="fd-btn fd-btn--sm fd-btn--neutral">Cancel</button>
+                            <button onClick="{{r.ask}}" class="fd-btn fd-btn--sm fd-btn--primary">Post to Discussion</button>
+                          </div>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+
+            <div id="attachments" class="fd-section">
+              <h3 class="fd-section-title">Attachments</h3>
+              <div class="fd-files">
+                <a href="#" class="fd-file">
+                  <span class="fd-file-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"/></svg></span>
+                  <span class="fd-file-text"><span class="fd-file-name">[Risk assessment].pdf</span><span class="fd-file-sub">Preview</span></span>
+                </a>
+                <a href="#" class="fd-file">
+                  <span class="fd-file-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6"/></svg></span>
+                  <span class="fd-file-text"><span class="fd-file-name">[Site photo].jpg</span><span class="fd-file-sub">Preview</span></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel footer -->
+        <footer class="fd-foot">
+          <span class="fd-foot-hint">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01"/></svg>
+            Spotted something wrong? Correct it in form 1.
+          </span>
+          <div class="fd-foot-actions">
+            <button onClick="{{closeDrawer}}" class="fd-btn fd-btn--secondary">Back to task</button>
+            <a href="review-workspace.html" class="fd-btn fd-btn--primary">Review &amp; correct permit →</a>
+          </div>
+        </footer>
+      </section>
+    </div>
+  </sc-if>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="TaskGuided">
+class Component extends DCLogic {
+  renderVals() {
+    const navBase = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px;border-radius:12px;';
+    const nav = [
+      { label: 'Home', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z', active: true },
+      { label: 'Requests', icon: 'M12 5v14M5 12h14' },
+      { label: 'Sent', icon: 'M22 2 11 13M22 2l-7 20-4-9-9-4z' },
+      { label: 'Documents', icon: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+      { label: 'Events', icon: 'M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' }
+    ].map(n => ({ ...n, style: navBase + (n.active ? 'background:#22336B;color:#FFFFFF' : 'color:#C7D2FE') }));
+    const b = 'display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700;flex:none;';
+    const isApproved = (this.state.st ?? (this.props.actionState ?? 'notStarted')) === 'submitted';
+    const chipBase = 'font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;';
+    const statusChip = isApproved ? '✓ Approved · with HSE' : 'Waiting on you · 28 d';
+    const statusChipStyle = chipBase + (isApproved ? 'background:#ECFDF3;color:#067647' : 'background:#EFF4FF;color:#0070FF');
+    const allSteps = [
+      { name: 'Contractor PTW Request', who: 'sreekutty · 19 Oct', mark: '✓', badge: b + 'background:#067647;color:#FFFFFF' },
+      isApproved
+        ? { name: 'Supervisor Review', who: 'You · approved [date]', mark: '✓', badge: b + 'background:#067647;color:#FFFFFF' }
+        : { name: 'Supervisor Review', who: 'You · now', mark: '2', badge: b + 'background:#0070FF;color:#FFFFFF;box-shadow:0 0 0 4px #DBE6FE' },
+      isApproved
+        ? { name: '[HSE approval]', who: '[Role] · in progress', mark: '3', badge: b + 'background:#0070FF;color:#FFFFFF;box-shadow:0 0 0 4px #DBE6FE' }
+        : { name: '[HSE approval]', who: '[Role]', mark: '3', badge: b + 'background:#F2F4F7;color:#475467' },
+      { name: '[Permit issued]', who: '[Role]', mark: '4', badge: b + 'background:#F2F4F7;color:#475467' }
+    ];
+    // Show only the steps up to and including the user's own step; later steps are hidden.
+    const steps = allSteps.slice(0, allSteps.findIndex(s => /^You\b/.test(s.who)) + 1);
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;height:40px;min-width:120px;padding:0 16px;border-radius:9px;font-size:14px;font-weight:600;';
+    const forms = [
+      { n: '1', title: 'Check the contractor’s permit', hint: 'Confirm or correct what the contractor entered.', fields: '16 fields', prefilled: true, cta: 'Review permit', btnStyle: btn + 'background:#0070FF;color:#FFFFFF' },
+      { n: '2', title: 'Complete the hazard & safety checklist', hint: 'Yes / No / N/A on each hazard control.', fields: '6 questions', cta: 'Fill in', btnStyle: btn + 'background:#EFF4FF;color:#0070FF' }
+    ];
+    const summary = [
+      { k: 'Work type', v: '[Work type]' }, { k: 'Location', v: '[Site / area]' }, { k: 'Work window', v: '[Start – end]' },
+      { k: 'Hazards identified', v: '[n] listed' }, { k: 'Crew size', v: '[n]' }, { k: 'Attachments', v: '[n] files' }
+    ];
+    const muted = 'margin:0;font-size:13px;color:#5D6679;text-align:right';
+    const strong = 'margin:0;font-size:13px;font-weight:600;color:#101828;text-align:right';
+    const details = [
+      { k: 'Assigned by', v: 'Sreekkutty MS', style: strong },
+      { k: 'Requested by', v: 'sreekutty (Contractor)', style: strong },
+      { k: 'Priority', v: 'Medium', style: strong },
+      { k: 'Due date', v: 'Not set', style: muted },
+      { k: 'Project', v: 'Not set', style: muted },
+      { k: 'Site', v: 'Not set', style: muted }
+    ];
+    const S = [
+      { id: 'sec-work', title: 'Work details', rows: [['Work type', '[Work type]'], ['Location', '[Site / area]', '1 comment'], ['Start', '[Date, time]'], ['End', '[Date, time]'], ['Description of work', '[Description]']] },
+      { id: 'sec-crew', title: 'Contractor & crew', rows: [['Contractor company', '[Company]'], ['Supervisor on site', '[Name]'], ['Crew size', '[n]'], ['Emergency contact', '']] },
+      { id: 'sec-haz', title: 'Hazards & controls', rows: [['Hazards identified', '[List]'], ['Controls proposed', '[List]'], ['PPE required', '[List]']] },
+      { id: 'sec-iso', title: 'Isolation & gas test', rows: [['Isolation required', '[Yes / No]'], ['Gas test required', '[Yes / No]']] },
+      { id: 'sec-dec', title: 'Declaration', rows: [['Signed by', 'sreekutty'], ['Signed on', '19 Oct 2026']] }
+    ];
+    const hideEmpty = this.state.hideEmpty ?? true;
+    const asking = this.state.asking;
+    const sections = S.map(s => {
+      const rows = s.rows.filter(r => !(hideEmpty && !r[1])).map(([k, v, thread]) => {
+        const key = s.id + k;
+        return { k, v: v || 'Not filled in', thread: thread || '', asking: asking === key, askLabel: 'Comment on ' + k,
+          ask: () => this.setState({ asking: asking === key ? null : key }),
+          valStyle: 'flex:1;min-width:0;font-size:14px;font-weight:500;color:' + (v ? '#101828' : '#5D6679;font-style:italic') };
+      });
+      const c = s.rows.filter(r => r[2]).length;
+      return { id: s.id, title: s.title, rows, commentCount: c ? String(c) : '' };
+    });
+    const drawerOpen = this.state.drawer ?? (this.props.showFormDrawer ?? false);
+
+    // ---- Action area (Option A) ----
+    const st = this.state.st ?? (this.props.actionState ?? 'notStarted');
+    const go = v => () => this.setState({ st: v });
+    const abtn = 'display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;text-decoration:none;height:40px;min-width:96px;padding:0 16px;border-radius:9px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;';
+    const aPrimary = abtn + 'border:0;background:#0070FF;color:#FFFFFF';
+    const aSoft = abtn + 'border:0;background:#DBE6FE;color:#1E3A8A';
+    const aQuiet = abtn + 'border:1px solid #D0D5DD;background:#FFFFFF;color:#344054;height:36px;font-size:13px';
+    const ic = 'width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;';
+    const doneR = { mark: '✓', iconStyle: ic + 'background:#067647;color:#FFFFFF', titleStyle: 'font-size:15px;font-weight:600;color:#475467' };
+    const todoR = n => ({ mark: n, iconStyle: ic + 'border:2px solid #0070FF;color:#0070FF', titleStyle: 'font-size:15px;font-weight:600;color:#101828' });
+    const row = 'display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:#FFFFFF;flex-wrap:wrap;';
+    const focus = row + 'box-shadow:0 0 0 2px #93B4FD';
+    const f1 = 'Check the contractor’s permit', f2 = 'Complete the hazard & safety checklist';
+    const card = 'display:flex;flex-direction:column;gap:14px;padding:22px;border-radius:16px;';
+    const blueCard = card + 'background:#EFF4FF;border:2px solid #0070FF';
+    const eye = (bg, fg) => `display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:${bg};color:${fg}`;
+    const bolt = 'M13 2 3 14h9l-1 8 10-12h-9z', check = 'M20 6 9 17l-5-5', back = 'M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-1';
+    const sub0 = 'Verify the worksite hazards and safety measures in the contractor’s permit request, then record your review.';
+    let actRows, act;
+    if (st === 'notStarted') {
+      actRows = [
+        { ...todoR('1'), title: f1, meta: 'Confirm or correct what the contractor entered · 16 fields', prefilled: true, label: 'Review', act: go('inProgress'), btnStyle: aPrimary, rowStyle: focus },
+        { ...todoR('2'), title: f2, meta: '6 questions · ~3 min', label: 'Start', act: go('inProgress'), btnStyle: aSoft, rowStyle: row }
+      ];
+      act = { cardStyle: blueCard, eyebrow: 'Your action', eyebrowIcon: bolt, eyebrowStyle: eye('#0070FF', '#FFFFFF'), count: '0 of 2 done', heading: 'What you need to do', sub: sub0, showBar: true, bar: 'width:4%;height:100%;background:#0070FF',
+        barHint: 'Finish 2 forms to approve.', barSecondary: '', barPrimary: '' };
+    } else if (st === 'inProgress') {
+      actRows = [
+        { ...doneR, title: f1, meta: 'Done · 11:40', label: 'Edit', act: go('inProgress'), btnStyle: aQuiet, rowStyle: row },
+        { ...todoR('2'), title: f2, meta: '3 of 6 answered · saved 11:46', label: 'Continue', act: go('ready'), btnStyle: aPrimary, rowStyle: focus }
+      ];
+      act = { cardStyle: blueCard, eyebrow: 'Your action', eyebrowIcon: bolt, eyebrowStyle: eye('#0070FF', '#FFFFFF'), count: '1 of 2 done', heading: 'What you need to do', sub: 'One form left.', showBar: true, bar: 'width:65%;height:100%;background:#0070FF',
+        barHint: 'Finish 1 more form to approve.', barSecondary: '', barPrimary: '' };
+    } else if (st === 'ready') {
+      actRows = [
+        { ...doneR, title: f1, meta: 'Done · 11:40', label: 'Edit', act: go('ready'), btnStyle: aQuiet, rowStyle: row },
+        { ...doneR, title: f2, meta: 'Done · 11:51 · 2 items marked No', label: 'Edit', act: go('ready'), btnStyle: aQuiet, rowStyle: row }
+      ];
+      act = { cardStyle: card + 'background:#ECFDF3;border:2px solid #12B76A', eyebrow: 'Ready for your decision', eyebrowIcon: check, eyebrowStyle: eye('#067647', '#FFFFFF'), count: '2 of 2 done',
+        heading: 'Decide on this permit', sub: 'Both forms are complete. Your decision moves the permit to the next step.', showBar: false, ready: true,
+        barHint: 'All forms complete — decide in the green panel above.', barSecondary: '', barPrimary: '' };
+    } else if (st === 'submitted') {
+      actRows = [
+        { ...doneR, title: f1, meta: 'Approved · [date, time]', label: 'View', act: go('submitted'), btnStyle: aQuiet, rowStyle: row },
+        { ...doneR, title: f2, meta: 'Approved · [date, time]', label: 'View', act: go('submitted'), btnStyle: aQuiet, rowStyle: row }
+      ];
+      act = { cardStyle: card + 'background:#ECFDF3;border:2px solid #12B76A', eyebrow: 'Approved', eyebrowIcon: check, eyebrowStyle: eye('#067647', '#FFFFFF'), count: '2 of 2 done',
+        heading: 'Approved — now with HSE approval', sub: 'You’ll be notified if it comes back to you. Nothing else is needed from you.', showBar: false, submitted: true,
+        barHint: 'No action needed from you.', barSecondary: '', barPrimary: '' };
+    } else {
+      actRows = [
+        { ...todoR('1'), title: f1, meta: 'Needs changes · see the note above', label: 'Fix', act: go('ready'), btnStyle: aPrimary, rowStyle: focus },
+        { ...doneR, title: f2, meta: 'Done · unchanged', label: 'Edit', act: go('returned'), btnStyle: aQuiet, rowStyle: row }
+      ];
+      act = { cardStyle: card + 'background:#FFFAEB;border:2px solid #F79009', eyebrow: 'Returned to you', eyebrowIcon: back, eyebrowStyle: eye('#B54708', '#FFFFFF'), count: '1 to fix',
+        heading: 'Fix and resubmit', sub: 'Only the form that needs changes is reopened.', showBar: false, returned: true,
+        barHint: 'Fix 1 form to resubmit.', barSecondary: '', barPrimary: 'Resubmit to HSE' };
+    }
+
+    // ---- Supervisor Review: filled-in values ----
+    const RQ = ['Work area is isolated and barricaded', 'Gas test done where required', 'Fire extinguisher available at the work location', 'Workers have the required PPE', 'Risk assessment / method statement attached', 'Emergency contacts briefed to the crew'];
+    const RA = [['yes'], ['yes'], ['no', 'Place a fire extinguisher at the north side before work starts'], ['yes'], ['no', 'Method statement is missing — attach it'], ['yes']];
+    const answeredN = st === 'inProgress' ? 3 : 6;
+    const pill = 'font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;';
+    const ansLook = { yes: ['Yes', pill + 'background:#ECFDF3;color:#067647'], no: ['No', pill + 'background:#FEF3F2;color:#B42318'], na: ['N/A', pill + 'background:#F2F4F7;color:#344054'] };
+    const rv = {
+      show: st !== 'notStarted',
+      editable: st !== 'submitted',
+      meta: st === 'submitted' ? 'Your entries · approved [date, time]' : st === 'inProgress' ? 'Your entries · draft saved 11:46' : 'Your entries · saved 11:51',
+      permit: [
+        { k: 'Work type', v: '[Work type]' }, { k: 'Work location', v: '[Site / area]' }, { k: 'Start', v: '[Date, time]' },
+        { k: 'End', v: '[Date, time]' }, { k: 'Contractor company', v: '[Company]' }, { k: 'Crew size', v: '[n]' }
+      ],
+      checkChip: answeredN < RQ.length ? `${answeredN} of ${RQ.length} answered` : `✓ ${RQ.length} of ${RQ.length} answered · 2 marked No`,
+      checkChipStyle: 'font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;' + (answeredN < RQ.length ? 'background:#EFF4FF;color:#0070FF' : 'background:#ECFDF3;color:#067647'),
+      answers: RQ.map((text, i) => {
+        const a = i < answeredN ? RA[i] : null;
+        return { n: i + 1, text, label: a ? ansLook[a[0]][0] : 'Not answered', style: a ? ansLook[a[0]][1] : pill + 'background:#FFFFFF;border:1px dashed #98A2B3;color:#475467', note: a && a[1] ? a[1] : '' };
+      })
+    };
+
+    const rvOpen = this.state.rvOpen ?? false, crOpen = this.state.crOpen ?? false;
+    const chevDown = 'm6 9 6 6 6-6', chevRight = 'm9 6 6 6-6 6';
+
+    return { rv, statusChip, statusChipStyle,
+      rvOpen, crOpen, rvChevron: rvOpen ? chevDown : chevRight, crChevron: crOpen ? chevDown : chevRight,
+      toggleRv: () => this.setState({ rvOpen: !rvOpen }), toggleCr: () => this.setState({ crOpen: !crOpen }),
+      tip1: !!this.state.tip1, tip2: !!this.state.tip2,
+      toggleTip1: () => this.setState({ tip1: !this.state.tip1, tip2: false }),
+      toggleTip2: () => this.setState({ tip2: !this.state.tip2, tip1: false }),
+      // Header title: the task being viewed = the workflow step assigned to the current user.
+      taskTitle: (steps.find(s => /^You\b/.test(s.who)) || {}).name || '',
+      nav, steps, forms, summary, details, sections, hideEmpty, drawerOpen, act, actRows,
+      approve: go('submitted'), undo: go('ready'),
+      openDrawer: () => this.setState({ drawer: true }),
+      closeDrawer: () => this.setState({ drawer: false, asking: null }),
+      toggleEmpty: () => this.setState({ hideEmpty: !hideEmpty }) };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

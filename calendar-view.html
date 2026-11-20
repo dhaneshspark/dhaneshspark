@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept B – Calendar view · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="BoardCalendar"></div>
+<template data-dc-component="BoardCalendar">
+<div style="min-height: 1200px; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Left sidebar (shared: assets/app-shell.js) -->
+  <dc-import name="AppSidebar" active="home"></dc-import>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+    <!-- Top header (shared: assets/app-shell.js) -->
+    <dc-import name="AppTopbar" active="home" inset="{{true}}"></dc-import>
+
+    <div style="display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap">
+      <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 13px; font-weight: 600; color: #475467">Daniel Johnson · Site Engineer</div>
+        <h1 style="margin: 0; font-family: Inter; font-size: 30px; font-weight: 600">My work</h1>
+      </div>
+      <nav aria-label="View" style="display: flex; gap: 4px; background: #E9EDF3; padding: 3px; border-radius: 10px">
+        <a href="home.html" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475467"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v18H3zM14 3h7v11h-7z"></path></svg>Board</a>
+        <a href="list-view.html" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475467"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>List</a>
+        <a href="calendar-view.html" aria-current="page" style="display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; background: #FFFFFF; font-size: 13px; font-weight: 600; color: #101828; box-shadow: 0 1px 2px rgba(16,24,40,.08)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path></svg>Calendar</a>
+      </nav>
+      <a href="#" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 10px; background: #0070FF; color: #FFFFFF; font-weight: 600; font-size: 14px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        New request
+      </a>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 12px">
+      <label style="flex: 1 1 260px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; background: #F5F7FA">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5D6679" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+        <span style="position: absolute; left: -9999px">Search tasks</span>
+        <input type="search" placeholder="Search by task, workflow or ID" style="flex: 1; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px">
+      </label>
+      <button style="height: 40px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #344054; cursor: pointer">Workflow ▾</button>
+      <button style="height: 40px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 500; color: #344054; cursor: pointer">Priority ▾</button>
+      <label style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; font-size: 13px; color: #344054; cursor: pointer">
+        <input type="checkbox" checked="" style="width: 16px; height: 16px; accent-color: #0E7090">
+        Show events
+      </label>
+      <label style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; font-size: 13px; color: #344054; cursor: pointer">
+        <input type="checkbox" checked="" style="width: 16px; height: 16px; accent-color: #067647">
+        Show completed
+      </label>
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start">
+
+      <!-- Calendar -->
+      <section aria-label="Calendar" style="flex: 999 1 640px; min-width: 0; background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #E4E7EC; flex-wrap: wrap">
+          <button aria-label="Previous" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #D0D5DD; background: #FFFFFF; cursor: pointer; font-size: 16px; color: #344054">‹</button>
+          <button aria-label="Next" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #D0D5DD; background: #FFFFFF; cursor: pointer; font-size: 16px; color: #344054">›</button>
+          <h2 style="margin: 0 6px; font-family: Inter; font-size: 20px; font-weight: 600">{{heading}}</h2>
+          <button onClick="{{goToday}}" style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #D0D5DD; background: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; color: #344054; cursor: pointer">Today</button>
+          <span style="flex: 1"></span>
+          <div role="radiogroup" aria-label="Range" style="display: flex; gap: 4px; background: #E9EDF3; padding: 3px; border-radius: 9px">
+            <sc-for list="{{ranges}}" as="r" hint-placeholder-count="2">
+              <button role="radio" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-bottom: 1px solid #E4E7EC; background: #F9FAFB">
+          <sc-for list="{{dow}}" as="d" hint-placeholder-count="7">
+            <div style="padding: 10px 12px; font-size: 12px; font-weight: 600; color: #475467">{{d}}</div>
+          </sc-for>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr))">
+          <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+            <button onClick="{{c.pick}}" aria-label="{{c.aria}}" style="{{c.style}}">
+              <span style="{{c.numStyle}}">{{c.num}}</span>
+              <sc-for list="{{c.items}}" as="it" hint-placeholder-count="1">
+                <span style="{{it.style}}">{{it.label}}</span>
+              </sc-for>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; padding: 12px 18px; border-top: 1px solid #E4E7EC; font-size: 12px; color: #475467">
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #7A5AF8"></span>To start</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #F79009"></span>In progress</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0E7090"></span>Event</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #12B76A"></span>Completed</span>
+        </div>
+      </section>
+
+      <!-- Side panel -->
+      <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <section aria-label="Selected day" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 700">{{selLabel}}</h3>
+            <span style="font-size: 12px; color: #475467">{{selCount}}</span>
+          </div>
+          <sc-if value="{{selEmpty}}" hint-placeholder-val="{{false}}">
+            <p style="margin: 0; font-size: 14px; color: #475467">Nothing due on this day. Pick another day, or work through the overdue and unscheduled tasks below.</p>
+          </sc-if>
+          <sc-for list="{{selItems}}" as="s" hint-placeholder-count="1">
+            <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid #E4E7EC; border-radius: 12px">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="{{s.dot}}"></span>
+                <span style="font-size: 12px; font-weight: 600; color: #475467">{{s.wf}}</span>
+                <span style="flex: 1"></span>
+                <span style="font-family: Inter; font-size: 11px; color: #5D6679">{{s.id}}</span>
+              </div>
+              <div style="font-size: 15px; font-weight: 600">{{s.title}}</div>
+              <div style="font-size: 12px; color: #475467">{{s.meta}}</div>
+              <sc-if value="{{s.action}}" hint-placeholder-val="{{true}}">
+                <a href="#" style="{{s.btnStyle}}">{{s.action}}</a>
+              </sc-if>
+            </div>
+          </sc-for>
+        </section>
+
+        <section aria-label="Overdue" style="background: #FFFFFF; border: 1.5px solid #FDA29B; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #D92D20"></span>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700">Overdue</h3>
+            <span style="font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: #FEF3F2; color: #B42318">1</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div style="flex: 1; min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">Supervisor Initial Review</div>
+              <div style="font-size: 12px; color: #475467">Incident Reporting · was due 19 Apr · 211 d late</div>
+            </div>
+            <a href="#" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 8px; background: #0070FF; color: #FFFFFF; font-size: 13px; font-weight: 600">Continue</a>
+          </div>
+        </section>
+
+        <section aria-label="No due date" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #98A2B3"></span>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 700">No due date</h3>
+            <span style="font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: #F2F4F7; color: #344054">5</span>
+          </div>
+          <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #475467">These can't go on the calendar. Oldest first, so nothing gets forgotten.</p>
+          <sc-for list="{{undated}}" as="u" hint-placeholder-count="3">
+            <a href="#" style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: #F9FAFB; color: #101828">
+              <span style="{{u.dot}}"></span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 13px; font-weight: 600">{{u.title}}</span>
+                <span style="font-size: 12px; color: #5D6679">{{u.meta}}</span>
+              </span>
+              <span style="font-size: 12px; font-weight: 600; color: #0070FF">{{u.action}}</span>
+            </a>
+          </sc-for>
+          <a href="#" style="font-size: 13px; font-weight: 600">Show 2 more</a>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="BoardCalendar">
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: '2026-11-18', range: 'month' }; }
+  renderVals() {
+    const navBase = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px;border-radius:12px;';
+    const nav = [
+      { label: 'Home', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z', active: true },
+      { label: 'Requests', icon: 'M12 5v14M5 12h14' },
+      { label: 'Sent', icon: 'M22 2 11 13M22 2l-7 20-4-9-9-4z' },
+      { label: 'Documents', icon: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+      { label: 'Events', icon: 'M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' }
+    ].map(n => ({ ...n, style: navBase + (n.active ? 'background:#22336B;color:#FFFFFF' : 'color:#C7D2FE') }));
+
+    const C = { start: ['#F4F3FF', '#5925DC', '#7A5AF8'], prog: ['#FFFAEB', '#B54708', '#F79009'], event: ['#ECFDFF', '#0E7090', '#0E7090'], done: ['#ECFDF3', '#067647', '#12B76A'] };
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;';
+    const E = {
+      '2026-11-05': [{ k: 'done', label: '4 completed', title: '4 tasks completed', wf: 'Incident Investigation · Corrective', id: '', meta: 'Verify CAPA, Clean Oil Spill (CT-212), Investigate, Verify Incident' }],
+      '2026-11-18': [{ k: 'start', label: 'Supervisor Review', title: 'Supervisor Review', wf: 'Permit To Work', id: 'WF-0122', meta: 'Due end of day · assigned 28 d ago', action: 'Start task' }],
+      '2026-11-19': [{ k: 'event', label: '[Site safety walk]', title: '[Site safety walk]', wf: 'Event', id: '', meta: '[Time · location]' }],
+      '2026-11-20': [{ k: 'start', label: 'Safety Inspection', title: 'Safety Inspection', wf: 'Hot Work Permit', id: 'WF-0121', meta: 'Due end of day · assigned 38 d ago', action: 'Start task' }],
+      '2026-11-24': [{ k: 'start', label: 'Consultant Task', title: 'Consultant Task', wf: 'Site Handover & Inspection', id: 'WF-0077', meta: 'Due end of day · assigned 35 d ago', action: 'Start task' }],
+      '2026-11-26': [{ k: 'event', label: '[Toolbox talk]', title: '[Toolbox talk]', wf: 'Event', id: '', meta: '[Time · location]' }],
+      '2026-11-27': [{ k: 'start', label: 'Investigation', title: 'Investigation', wf: 'Incident Investigation', id: 'WF-0114', meta: 'Due end of day · assigned 40+ d ago', action: 'Start task' }]
+    };
+    const pad = n => String(n).padStart(2, '0');
+    const key = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const today = '2026-11-16';
+    const start = new Date(2026, 9, 26);
+    let days = [];
+    for (let i = 0; i < 42; i++) { const d = new Date(start); d.setDate(start.getDate() + i); days.push(d); }
+    const week = this.state.range === 'week';
+    if (week) {
+      const idx = days.findIndex(d => key(d) === this.state.sel);
+      const w = Math.floor((idx < 0 ? 21 : idx) / 7);
+      days = days.slice(w * 7, w * 7 + 7);
+    }
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const cells = days.map(d => {
+      const k = key(d), inMonth = d.getMonth() === 10, isToday = k === today, isSel = k === this.state.sel;
+      const items = (E[k] || []).map(e => ({ label: e.label, style: `display:block;width:100%;box-sizing:border-box;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:${C[e.k][0]};color:${C[e.k][1]}` }));
+      return {
+        num: d.getDate() === 1 ? `${months[d.getMonth()]} 1` : String(d.getDate()),
+        aria: `${d.getDate()} ${months[d.getMonth()]}${items.length ? ', ' + items.length + ' item' : ''}`,
+        items,
+        pick: () => this.setState({ sel: k }),
+        style: `display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:${week ? 360 : 112}px;padding:8px;border:0;border-right:1px solid #EEF0F3;border-bottom:1px solid #EEF0F3;font:inherit;text-align:left;cursor:pointer;min-width:0;` + (isSel ? 'background:#EFF4FF;box-shadow:inset 0 0 0 2px #0070FF' : inMonth ? 'background:#FFFFFF' : 'background:#FAFBFC'),
+        numStyle: 'display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 6px;box-sizing:border-box;border-radius:999px;font-size:13px;font-weight:600;' + (isToday ? 'background:#0070FF;color:#FFFFFF' : inMonth ? 'color:#101828' : 'color:#98A2B3')
+      };
+    });
+    const sd = new Date(this.state.sel + 'T00:00:00');
+    const dn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const selList = E[this.state.sel] || [];
+    const selItems = selList.map(e => ({ ...e, dot: `width:10px;height:10px;border-radius:50%;background:${C[e.k][2]}`, btnStyle: btn + 'background:#EFF4FF;color:#0070FF;align-self:flex-start' }));
+    const optBase = 'height:32px;padding:0 12px;border:0;border-radius:7px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;';
+    const ranges = [{ id: 'month', label: 'Month' }, { id: 'week', label: 'Week' }].map(r => ({ ...r, pick: () => this.setState({ range: r.id }), style: optBase + (this.state.range === r.id ? 'background:#FFFFFF;color:#101828;box-shadow:0 1px 2px rgba(16,24,40,.08)' : 'background:transparent;color:#475467') }));
+    const dot = c => `width:8px;height:8px;border-radius:50%;flex:none;background:${c}`;
+    const undated = [
+      { title: 'HR approval', meta: 'HR Approval · WF-0017 · waiting 238 d', action: 'Continue', dot: dot('#F79009') },
+      { title: 'Investigate – Supervisor', meta: 'Incident Investigation · WF-0098 · waiting 94 d', action: 'Continue', dot: dot('#F79009') },
+      { title: 'HR Approval', meta: 'HR Approval · WF-0016 · waiting 240+ d', action: 'Continue', dot: dot('#F79009') }
+    ];
+    return {
+      nav, cells, ranges, undated, selItems,
+      heading: week ? `Week of ${days[0].getDate()} ${months[days[0].getMonth()]} 2026` : 'November 2026',
+      dow: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      goToday: () => this.setState({ sel: today }),
+      selLabel: `${dn[sd.getDay()]}, ${sd.getDate()} ${months[sd.getMonth()]}` + (this.state.sel === today ? ' · Today' : ''),
+      selCount: selList.length ? `${selList.length} item` : '',
+      selEmpty: selList.length === 0
+    };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

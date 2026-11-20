@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept B – List view · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+/* Search bar — same component as Home (search, Filters panel, Sort, Board / List), sticky under the header */
+.sf-sticky-filters{position:sticky;top:64px;z-index:15;margin:-12px -32px 0;padding:12px 32px 0;background:#F5F7FA}
+@media (max-width:640px){.sf-sticky-filters{top:56px}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ms-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px}
+.ms-search{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;box-sizing:border-box;border-radius:8px;background:#F5F7FA;border:1px solid transparent}
+.ms-search:focus-within{border-color:#84ADFF;background:#FFFFFF}
+.ms-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:14px;color:#101828}
+.ms-search input::placeholder{color:#667085}
+.ms-fbtn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer}
+.ms-fbtn:hover{background:#F9FAFB}
+.ms-fbtn:focus-visible,.ms-select:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.ms-fbtn.is-on{border-color:#B2CCFF;background:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-fbadge{min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#0070FF;color:#FFFFFF;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.ms-select{appearance:none;-webkit-appearance:none;max-width:100%;height:40px;padding:0 32px 0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer;text-overflow:ellipsis}
+.ms-select.is-on{border-color:#B2CCFF;background-color:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-panel{flex:1 1 100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #F2F4F7}
+.ms-panel-label{font-size:13px;font-weight:600;color:#344054}
+.ms-link-btn{height:32px;padding:0 6px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:#0070FF;cursor:pointer;border-radius:6px}
+.ms-link-btn:hover{background:#EFF4FF}
+.ms-link-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+@media (max-width:640px){
+  .ms-search{flex-basis:100%}
+  .ms-bar > .ms-fbtn,.ms-bar > .ms-sortwrap{flex:1 1 0;min-width:0}
+  .ms-bar > .ms-fbtn{justify-content:center}
+  .ms-sortwrap .ms-select{width:100%}
+  .ms-panel .ms-select{flex:1 1 100%;min-width:0;width:100%}
+  .ms-bar > .sf-viewnav{flex:1 1 100%;margin-left:0 !important}
+  .sf-viewnav > a{flex:1}
+}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="BoardList"></div>
+<template data-dc-component="BoardList">
+<div style="min-height: 1200px; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Left sidebar (shared: assets/app-shell.js) -->
+  <dc-import name="AppSidebar" active="home"></dc-import>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+    <!-- Top header (shared: assets/app-shell.js) -->
+    <dc-import name="AppTopbar" active="home" inset="{{true}}" as-h1="{{true}}"></dc-import>
+
+    <!-- Search bar (same as Home board view; sticky under the header) -->
+    <div class="sf-sticky-filters">
+      <div class="ms-bar">
+        <label class="ms-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5D6679" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+          <span class="sr-only">Search tasks</span>
+          <input type="search" value="{{q}}" onInput="{{onSearch}}" placeholder="Search by task, workflow or ID">
+        </label>
+        <button type="button" class="{{filterBtnClass}}" onClick="{{toggleFilters}}" aria-expanded="{{filtersOpen}}" aria-controls="sf-filter-panel">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"></path></svg>
+          Filters
+          <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><span class="ms-fbadge" aria-label="{{activeCount}} active">{{activeCount}}</span></sc-if>
+        </button>
+        <label class="ms-sortwrap">
+          <span class="sr-only">Sort tasks</span>
+          <select class="ms-select" value="{{sort}}" onChange="{{onSort}}">
+            <sc-for list="{{sortOpts}}" as="o" hint-placeholder-count="2">
+              <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+            </sc-for>
+          </select>
+        </label>
+      <nav aria-label="View" class="sf-viewnav" style="margin-left: auto; display: flex; gap: 4px; background: #E9EDF3; padding: 3px; border-radius: 10px">
+        <a href="home.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475467"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v18H3zM14 3h7v11h-7z"></path></svg>Board</a>
+        <a href="list-view.html" aria-current="page" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; background: #FFFFFF; font-size: 13px; font-weight: 600; color: #101828; box-shadow: 0 1px 2px rgba(16,24,40,.08)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>List</a>
+      </nav>
+        <sc-if value="{{filtersOpen}}" hint-placeholder-val="{{false}}">
+          <div class="ms-panel" id="sf-filter-panel" role="group" aria-label="Filters">
+            <span class="ms-panel-label">Filter by</span>
+            <sc-for list="{{filterDefs}}" as="f" hint-placeholder-count="3">
+              <label style="display: contents">
+                <span class="sr-only">{{f.label}}</span>
+                <select class="{{f.cls}}" value="{{f.value}}" onChange="{{f.on}}">
+                  <sc-for list="{{f.opts}}" as="o" hint-placeholder-count="3">
+                    <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+                  </sc-for>
+                </select>
+              </label>
+            </sc-for>
+            <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><button type="button" class="ms-link-btn" onClick="{{clearFilters}}">Clear filters</button></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- List toolbar -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+      <span style="font-size: 13px; font-weight: 600; color: #344054">Group by</span>
+      <div role="radiogroup" aria-label="Group by" style="display: flex; gap: 4px; background: #E9EDF3; padding: 3px; border-radius: 9px">
+        <sc-for list="{{groupOpts}}" as="o" hint-placeholder-count="3">
+          <button role="radio" onClick="{{o.pick}}" style="{{o.style}}">{{o.label}}</button>
+        </sc-for>
+      </div>
+      <span style="flex: 1"></span>
+      <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #344054; cursor: pointer">
+        <input type="checkbox" style="width: 18px; height: 18px; accent-color: #0070FF">
+        Include completed (322)
+      </label>
+      <button style="height: 36px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 13px; color: #344054; cursor: pointer">Columns ▾</button>
+      <button style="height: 36px; padding: 0 12px; border: 1px solid #D0D5DD; border-radius: 8px; background: #FFFFFF; font: inherit; font-size: 13px; color: #344054; cursor: pointer">Export</button>
+    </div>
+
+    <!-- Table -->
+    <div style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 14px; overflow-x: auto">
+      <div role="table" aria-label="My tasks" style="min-width: 1040px">
+        <div role="row" style="display: grid; grid-template-columns: minmax(260px, 2.4fr) 100px 130px 150px 160px 110px 100px 120px; gap: 12px; align-items: center; padding: 0 20px; height: 44px; background: #F9FAFB; border-bottom: 1px solid #E4E7EC">
+          <sc-for list="{{cols}}" as="h" hint-placeholder-count="8">
+            <span role="columnheader" style="{{h.style}}">{{h.label}}<sc-if value="{{h.sorted}}" hint-placeholder-val="{{false}}"> ↓</sc-if></span>
+          </sc-for>
+        </div>
+
+        <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+          <button onClick="{{g.toggle}}" aria-expanded="{{g.open}}" style="{{g.headStyle}}">
+            <span style="{{g.caretStyle}}">{{g.caret}}</span>
+            <span style="{{g.dot}}"></span>
+            <span style="{{g.labelStyle}}">{{g.label}}</span>
+            <span style="{{g.countStyle}}">{{g.count}}</span>
+          </button>
+          <sc-if value="{{g.open}}" hint-placeholder-val="{{true}}">
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+              <div role="row" style="{{r.rowStyle}}">
+                <span role="cell" style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <span style="font-size: 14px; font-weight: 600; color: #101828">{{r.title}}</span>
+                  <span style="font-size: 12px; color: #475467">{{r.sub}}</span>
+                </span>
+                <span role="cell" style="font-family: Inter; font-size: 12px; color: #475467">{{r.id}}</span>
+                <span role="cell"><span style="{{r.statusStyle}}">{{r.status}}</span></span>
+                <span role="cell" style="display: flex; flex-direction: column; gap: 5px">
+                  <span style="font-size: 12px; color: #344054">{{r.step}}</span>
+                  <span style="height: 5px; border-radius: 999px; background: #EEF0F3; overflow: hidden"><span style="{{r.bar}}"></span></span>
+                </span>
+                <span role="cell"><span style="{{r.dueStyle}}">{{r.due}}</span></span>
+                <span role="cell" style="font-size: 13px; color: #344054">{{r.age}}</span>
+                <span role="cell" style="{{r.prioStyle}}">{{r.prio}}</span>
+                <span role="cell" style="display: flex; justify-content: flex-end"><a href="#" style="{{r.btnStyle}}">{{r.action}}</a></span>
+              </div>
+            </sc-for>
+          </sc-if>
+        </sc-for>
+        <sc-if value="{{noMatch}}" hint-placeholder-val="{{false}}">
+          <div role="row" style="padding: 32px 20px; text-align: center; font-size: 13px; color: #475467">No matching tasks. Try a different search term or clear the filters.</div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #475467">
+      <span>{{summary}}</span>
+      <sc-if value="{{showMore}}" hint-placeholder-val="{{true}}"><a href="#" style="font-weight: 600">Load 2 more</a></sc-if>
+    </div>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="BoardList">
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { by: 'status', closed: {}, q: '', workflow: '', status: '', priority: '', sort: 'urgent', filtersOpen: false }; }
+  renderVals() {
+    const navBase = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:60px;border-radius:12px;';
+    const nav = [
+      { label: 'Home', icon: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z', active: true },
+      { label: 'Requests', icon: 'M12 5v14M5 12h14' },
+      { label: 'Sent', icon: 'M22 2 11 13M22 2l-7 20-4-9-9-4z' },
+      { label: 'Documents', icon: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+      { label: 'Events', icon: 'M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' }
+    ].map(n => ({ ...n, style: navBase + (n.active ? 'background:#22336B;color:#FFFFFF' : 'color:#C7D2FE') }));
+    const filters = ['Project', 'Site', 'Priority'];
+
+    const optBase = 'height:32px;padding:0 12px;border:0;border-radius:7px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;';
+    const groupOpts = [{ id: 'status', label: 'Status' }, { id: 'workflow', label: 'Workflow' }, { id: 'none', label: 'None' }]
+      .map(o => ({ ...o, pick: () => this.setState({ by: o.id, closed: {} }), style: optBase + (this.state.by === o.id ? 'background:#FFFFFF;color:#101828;box-shadow:0 1px 2px rgba(16,24,40,.08)' : 'background:transparent;color:#475467') }));
+
+    const hBase = 'font-size:12px;font-weight:600;color:#475467;';
+    const cols = [
+      { label: 'Task' }, { label: 'ID' }, { label: 'Status' }, { label: 'Progress' },
+      { label: 'Due', sorted: true }, { label: 'Waiting' }, { label: 'Priority' }, { label: '', right: true }
+    ].map(c => ({ ...c, style: hBase + (c.sorted ? 'color:#0070FF;' : '') + (c.right ? 'text-align:right;' : '') }));
+
+    const chip = (bg, fg) => `display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:${bg};color:${fg}`;
+    const S = { prog: chip('#FFFAEB', '#B54708'), start: chip('#F4F3FF', '#5925DC') };
+    const overdue = chip('#FEF3F2', '#B42318'), nodue = chip('#F2F4F7', '#475467'), soon = chip('#EFF4FF', '#0070FF');
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;height:36px;min-width:92px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;';
+    const primary = btn + 'background:#0070FF;color:#FFFFFF', ghost = btn + 'background:#EFF4FF;color:#0070FF';
+    const bar = (p, c) => `display:block;height:100%;width:${p}%;background:${c};border-radius:999px`;
+    const rowBase = 'display:grid;grid-template-columns:minmax(260px,2.4fr) 100px 130px 150px 160px 110px 100px 120px;gap:12px;align-items:center;padding:12px 20px;border-bottom:1px solid #EEF0F3;';
+
+    const T = [
+      { id: 'WF-0052', title: 'Supervisor Initial Review', wf: 'Incident Reporting', st: 'prog', step: 'Step 2 of 4', p: 45, due: 'Overdue · 211 d', dueStyle: overdue, age: '214 d', prio: 'High', late: true },
+      { id: 'WF-0122', title: 'Supervisor Review', wf: 'Permit To Work', st: 'start', step: 'Step 2 of 4', p: 40, due: 'Due Wed, 18 Nov', dueStyle: soon, age: '28 d', prio: 'Medium' },
+      { id: 'WF-0121', title: 'Safety Inspection', wf: 'Hot Work Permit', st: 'start', step: 'Step 1 of 3', p: 20, due: 'Due Fri, 20 Nov', dueStyle: soon, age: '38 d', prio: 'Medium' },
+      { id: 'WF-0077', title: 'Consultant Task', wf: 'Site Handover & Inspection', st: 'start', step: 'Step 3 of 5', p: 50, due: 'Due Tue, 24 Nov', dueStyle: soon, age: '35 d', prio: 'Medium' },
+      { id: 'WF-0114', title: 'Investigation', wf: 'Incident Investigation', st: 'start', step: 'Step 2 of 5', p: 30, due: 'Due Fri, 27 Nov', dueStyle: soon, age: '40+ d', prio: 'Medium' },
+      { id: 'WF-0098', title: 'Investigate – Supervisor', wf: 'Incident Investigation', st: 'prog', step: 'Step 3 of 6', p: 50, due: 'No due date', dueStyle: nodue, age: '94 d', prio: 'Medium' },
+      { id: 'WF-0017', title: 'HR approval', wf: 'HR Approval', st: 'prog', step: 'Step 2 of 2', p: 85, due: 'No due date', dueStyle: nodue, age: '238 d', prio: 'Medium' },
+      { id: 'WF-0016', title: 'HR Approval', wf: 'HR Approval', st: 'prog', step: 'Step 2 of 2', p: 85, due: 'No due date', dueStyle: nodue, age: '240+ d', prio: 'Medium' }
+    ];
+    const by = this.state.by;
+
+    // ---- search bar: text search, Workflow / Status / Priority filters, sort ----
+    const F = this.state;
+    const q = F.q.trim().toLowerCase();
+    const stLabel = t => t.st === 'prog' ? 'In progress' : 'To start';
+    const narrowed = !!(q || F.workflow || F.status || F.priority);
+    const TOTAL = T.length;
+    const dueRank = d => /overdue/i.test(d) ? -1 : Number((/(\d{1,2}) Nov/.exec(d) || [0, 999])[1]);
+    const matched = T.map((t, i) => ({ t, i }))
+      .filter(({ t }) => (!q || [t.title, t.wf, t.id, stLabel(t), t.prio].some(v => v.toLowerCase().includes(q)))
+        && (!F.workflow || t.wf === F.workflow) && (!F.status || stLabel(t) === F.status) && (!F.priority || t.prio === F.priority))
+      .sort((a, b) => F.sort === 'due' ? dueRank(a.t.due) - dueRank(b.t.due) || a.i - b.i : a.i - b.i)
+      .map(x => x.t);
+    const uniq = vals => [...new Set(vals)].sort();
+    const opts = (key, prefix, values) => [{ value: '', label: `${prefix}: All`, sel: !F[key] }]
+      .concat(values.map(v => ({ value: v, label: `${prefix}: ${v}`, sel: F[key] === v })));
+    const filterDefs = [
+      { key: 'workflow', label: 'Workflow', values: uniq(T.map(t => t.wf)) },
+      { key: 'status', label: 'Status', values: ['In progress', 'To start'] },
+      { key: 'priority', label: 'Priority', values: uniq(T.map(t => t.prio)) }
+    ].map(f => ({ label: f.label, value: F[f.key], opts: opts(f.key, f.label, f.values),
+      cls: 'ms-select' + (F[f.key] ? ' is-on' : ''), on: e => this.setState({ [f.key]: e.target.value }) }));
+    const activeCount = ['workflow', 'status', 'priority'].filter(k => F[k]).length;
+    const SORTS = [{ value: 'urgent', label: 'Sort: Most urgent' }, { value: 'due', label: 'Sort: Due date' }];
+    const toRow = t => ({ ...t,
+      sub: by === 'workflow' ? (t.st === 'prog' ? 'In progress' : 'To start') : t.wf,
+      status: t.st === 'prog' ? 'In progress' : 'To start', statusStyle: S[t.st],
+      bar: bar(t.p, t.st === 'prog' ? '#F79009' : '#7A5AF8'),
+      prioStyle: 'font-size:13px;font-weight:600;color:' + (t.prio === 'High' ? '#B93815' : '#475467'),
+      action: t.st === 'prog' ? 'Continue' : 'Start', btnStyle: t.st === 'prog' ? primary : ghost,
+      rowStyle: rowBase + (t.late ? 'background:#FFFBFA' : 'background:#FFFFFF') });
+    const dot = c => `width:10px;height:10px;border-radius:50%;background:${c}`;
+    let defs;
+    // Tints for group title rows: background, border, text
+    const tint = {
+      red: { bg: '#FEF3F2', bd: '#FECDCA', fg: '#B42318', chip: '#FEE4E2' },
+      amber: { bg: '#FFFAEB', bd: '#FEDF89', fg: '#B54708', chip: '#FEF0C7' },
+      purple: { bg: '#F4F3FF', bd: '#D9D6FE', fg: '#5925DC', chip: '#EBE9FE' },
+      blue: { bg: '#EFF4FF', bd: '#C7D7FE', fg: '#0070FF', chip: '#DBE6FE' },
+      slate: { bg: '#F2F4F7', bd: '#D0D5DD', fg: '#344054', chip: '#E4E7EC' }
+    };
+    if (by === 'status') defs = [
+      { key: 'late', label: 'Overdue', c: '#D92D20', t: 'red', f: t => t.late },
+      { key: 'prog', label: 'In progress', c: '#F79009', t: 'amber', f: t => !t.late && t.st === 'prog' },
+      { key: 'start', label: 'To start', c: '#7A5AF8', t: 'purple', f: t => !t.late && t.st === 'start' }];
+    else if (by === 'workflow') defs = [...new Set(matched.map(t => t.wf))].map((w, i) => ({ key: w, label: w, c: i % 2 ? '#667085' : '#0070FF', t: i % 2 ? 'slate' : 'blue', f: t => t.wf === w }));
+    else defs = [{ key: 'all', label: 'All open tasks', c: '#0070FF', t: 'blue', f: () => true }];
+    const groups = defs.map((d, i) => {
+      const open = !this.state.closed[d.key];
+      const rows = matched.filter(d.f).map(toRow);
+      const k = tint[d.t];
+      return { label: d.label, count: String(rows.length), dot: dot(d.c), open, caret: open ? '▾' : '▸', rows,
+        headStyle: `display:flex;align-items:center;gap:10px;width:100%;padding:0 20px;height:44px;border:0;border-top:${i ? '1px solid ' + k.bd : '0'};border-bottom:1px solid ${k.bd};background:${k.bg};font:inherit;text-align:left;cursor:pointer`,
+        caretStyle: `font-size:12px;width:12px;color:${k.fg}`,
+        labelStyle: `font-size:13px;font-weight:700;color:${k.fg}`,
+        countStyle: `font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:${k.chip};color:${k.fg}`,
+        toggle: () => this.setState({ closed: { ...this.state.closed, [d.key]: open } }) };
+    }).filter(g => g.rows.length);
+    return { nav, filters, groupOpts, cols, groups,
+      q: F.q, sort: F.sort, filtersOpen: F.filtersOpen, filterDefs,
+      activeCount: activeCount ? String(activeCount) : '',
+      sortOpts: SORTS.map(o => ({ ...o, sel: F.sort === o.value })),
+      filterBtnClass: 'ms-fbtn' + (F.filtersOpen || activeCount ? ' is-on' : ''),
+      noMatch: matched.length === 0,
+      showMore: !narrowed,
+      summary: narrowed ? `Showing ${matched.length} of ${TOTAL} loaded tasks matching your search and filters`
+        : 'Showing 8 of 10 open tasks · sorted by due date, then waiting time',
+      onSearch: e => this.setState({ q: e.target.value }),
+      onSort: e => this.setState({ sort: e.target.value }),
+      toggleFilters: () => this.setState({ filtersOpen: !F.filtersOpen }),
+      clearFilters: () => this.setState({ workflow: '', status: '', priority: '' }) };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My submissions · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Status chip (same as task details) */
+.sf-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;line-height:16px;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.sf-chip-dot{width:6px;height:6px;border-radius:50%;flex:none}
+
+/* ---------- Page ---------- */
+.ms-main{flex:999 1 560px;min-width:0;container-type:inline-size;box-sizing:border-box;padding:28px 32px 40px;display:flex;flex-direction:column;gap:18px}
+
+/* Page intro: breadcrumb + description on the left, Grid / List switch on the right (Home "Board / List" pattern) */
+.ms-seg{margin-left:auto;display:flex;gap:4px;background:#E9EDF3;padding:3px;border-radius:10px}
+.ms-seg-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:8px;background:transparent;font:inherit;font-size:13px;font-weight:600;color:#475467;cursor:pointer}
+.ms-seg-btn[aria-pressed="true"]{background:#FFFFFF;color:#101828;box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.ms-seg-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+
+/* Search & filter bar — same as Home, sticks right under the top header */
+.sf-sticky-filters{position:sticky;top:64px;z-index:15;margin:-12px -32px 0;padding:12px 32px 0;background:#F5F7FA}
+.ms-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px}
+.ms-search{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;box-sizing:border-box;border-radius:8px;background:#F5F7FA;border:1px solid transparent}
+.ms-search:focus-within{border-color:#84ADFF;background:#FFFFFF}
+.ms-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:14px;color:#101828}
+.ms-search input::placeholder{color:#667085}
+.ms-fbtn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer}
+.ms-fbtn:hover{background:#F9FAFB}
+.ms-fbtn:focus-visible,.ms-select:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.ms-fbtn.is-on{border-color:#B2CCFF;background:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-fbadge{min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#0070FF;color:#FFFFFF;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.ms-select{appearance:none;-webkit-appearance:none;max-width:100%;height:40px;padding:0 32px 0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer;text-overflow:ellipsis}
+.ms-select.is-on{border-color:#B2CCFF;background-color:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-panel{flex:1 1 100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #F2F4F7}
+.ms-panel-label{font-size:13px;font-weight:600;color:#344054}
+.ms-link-btn{height:32px;padding:0 6px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:#0070FF;cursor:pointer;border-radius:6px}
+.ms-link-btn:hover{background:#EFF4FF}
+.ms-link-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+
+
+/* ---------- Grid view: cards (Home board card anatomy) ---------- */
+.ms-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.ms-grid > li{min-width:0;display:flex}
+.ms-card{flex:1;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;padding:16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.06);transition:border-color .15s ease,box-shadow .15s ease}
+.ms-card:hover,.ms-card:focus-within{border-color:#B2CCFF;box-shadow:0 4px 12px rgba(16,24,40,.06)}
+/* Needs your action (returned): red outline, like Home's overdue card */
+.ms-card--alert{border-color:#FDA29B}
+.ms-card--alert:hover,.ms-card--alert:focus-within{border-color:#F97066}
+.ms-card-top{display:flex;align-items:center;gap:8px;min-width:0}
+.ms-wf{flex:1;min-width:0;font-size:12px;font-weight:600;line-height:16px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-id{flex:none;font-size:11px;line-height:16px;color:#5D6679;letter-spacing:.02em}
+.ms-title{margin:0;font-size:16px;font-weight:600;line-height:1.35;color:#101828;overflow-wrap:anywhere}
+.ms-loc{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;line-height:18px;color:#344054}
+.ms-loc svg{flex:none;color:#98A2B3}
+.ms-loc span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-state{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0}
+.ms-step{min-width:0;font-size:13px;line-height:18px;color:#475467}
+.ms-note{margin:0;padding:8px 12px;border-radius:8px;background:#FEF3F2;font-size:13px;line-height:19px;color:#B42318;overflow-wrap:anywhere}
+.ms-card-foot{margin-top:auto;padding-top:4px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ms-card-foot .ms-btn{padding:0 12px}
+.ms-date-pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#F2F4F7;font-size:12px;font-weight:600;line-height:16px;color:#344054;white-space:nowrap}
+/* Buttons: ghost (Home "Start") and primary (Home "Continue") */
+.ms-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;box-sizing:border-box;border-radius:9px;background:#EFF4FF;font-size:14px;font-weight:600;color:#0070FF;white-space:nowrap;transition:background-color .15s ease}
+.ms-btn:hover{background:#E0EAFF;color:#0070FF}
+.ms-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.ms-btn--primary{background:#0070FF;color:#FFFFFF}
+.ms-btn--primary:hover{background:#005ACC;color:#FFFFFF}
+
+/* Wide content area (e.g. side menu collapsed on a laptop screen): 4 cards per row */
+@container (min-width:1240px) and (max-width:1739px){.ms-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Whole card / row opens the submission detail page (title link stretched over it; buttons stay on top) */
+.ms-card,.ms-tbody .ms-tr{position:relative}
+.ms-card{cursor:pointer}
+.ms-card-link{color:inherit}
+.ms-card-link:hover{color:inherit}
+.ms-card-link::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.ms-card-link:focus-visible{outline:none}
+.ms-card-link:focus-visible::after{outline:2px solid #0070FF;outline-offset:2px;border-radius:12px}
+.ms-card .ms-card-foot .ms-btn,.ms-tbody .ms-td-act .ms-btn{position:relative;z-index:1}
+.ms-tbody .ms-tr{cursor:pointer}
+
+/* ---------- List view: table (List view page pattern) ---------- */
+.ms-table{background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;overflow:hidden}
+.ms-tr{display:grid;grid-template-columns:minmax(220px,2fr) minmax(170px,1.4fr) minmax(200px,1.6fr) 120px 140px;gap:12px;align-items:center;padding:12px 20px;border-bottom:1px solid #EEF0F3}
+.ms-tr:last-child{border-bottom:0}
+.ms-thead{height:44px;padding-top:0;padding-bottom:0;background:#F9FAFB;border-bottom:1px solid #E4E7EC}
+.ms-th{font-size:12px;font-weight:600;color:#475467}
+.ms-tbody .ms-tr:hover{background:#F9FAFB}
+.ms-tbody .ms-tr--alert{background:#FFFBFA}
+.ms-td{min-width:0;font-size:13px;line-height:18px;color:#344054}
+.ms-td-main{display:flex;flex-direction:column;gap:2px}
+.ms-td-title{font-size:14px;font-weight:600;color:#101828;overflow-wrap:anywhere}
+.ms-td-sub{font-size:12px;color:#475467}
+.ms-td-note{margin-top:4px;font-size:12px;line-height:16px;color:#B42318}
+.ms-td-loc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-td-status{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ms-td-status .ms-step{font-size:12px;line-height:16px}
+.ms-td-act{display:flex;justify-content:flex-end}
+.ms-td-act .ms-btn{height:36px;padding:0 14px;font-size:13px;border-radius:8px}
+.ms-muted{color:#98A2B3}
+.ms-inline-k{display:none}
+
+/* Empty state (Home column empty pattern) */
+.ms-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px 20px;border-radius:12px;border:1px dashed #C7CFDB;background:#FFFFFF;text-align:center}
+.ms-empty-icon{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:#F2F4F7;color:#475467}
+.ms-empty h2{margin:4px 0 0;font-size:15px;font-weight:600;color:#101828}
+.ms-empty p{margin:0;max-width:380px;font-size:13px;line-height:18px;color:#475467}
+.ms-empty .ms-fbtn{margin-top:6px}
+
+/* ---------- Tablet ---------- */
+@media (max-width:1024px){
+  .ms-main{padding:24px 24px 36px}
+  .sf-sticky-filters{margin:-12px -24px 0;padding:12px 24px 0}
+  .ms-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+}
+/* List rows stack once the six columns no longer fit */
+@media (max-width:1100px){
+  .ms-thead{display:none}
+  .ms-tr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"main status" "loc loc" "date act";gap:8px 12px;padding:14px 16px}
+  .ms-c-main{grid-area:main}.ms-c-loc{grid-area:loc}.ms-c-status{grid-area:status}.ms-c-date{grid-area:date}.ms-c-act{grid-area:act}
+  .ms-c-status{align-self:start;align-items:flex-end;text-align:right}
+  .ms-inline-k{display:inline;color:#475467}
+  .ms-c-loc:has(.ms-noloc){display:none}
+}
+/* ---------- Mobile ---------- */
+@media (max-width:640px){
+  .ms-main{padding:20px 16px 32px;gap:16px}
+  .sf-sticky-filters{top:56px;margin:-12px -16px 0;padding:12px 16px 0}
+  .ms-bar > .ms-seg{flex:1 1 100%;margin-left:0}
+  .ms-seg-btn{flex:1}
+  .ms-search{flex-basis:100%}
+  .ms-bar > .ms-fbtn,.ms-bar > .ms-sortwrap{flex:1 1 0;min-width:0}
+  .ms-bar > .ms-fbtn{justify-content:center}
+  .ms-sortwrap .ms-select{width:100%}
+  .ms-panel .ms-select{flex:1 1 100%}
+  .ms-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .ms-card{padding:14px}
+  .ms-tr{grid-template-columns:minmax(0,1fr);grid-template-areas:"main" "status" "loc" "date" "act"}
+  .ms-c-status{align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px}
+  .ms-td-act .ms-btn{width:100%;height:40px}
+}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="MySubmissions"></div>
+<template data-dc-component="MySubmissions">
+<div style="min-height: 100vh; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Left sidebar (shared: assets/app-shell.js) -->
+  <dc-import name="AppSidebar" active="sent"></dc-import>
+
+  <main class="ms-main">
+    <!-- Top header (shared: assets/app-shell.js) -->
+    <dc-import name="AppTopbar" active="sent" inset="{{true}}" as-h1="{{true}}"></dc-import>
+
+    <!-- Search, filters, sort, Grid / List switch (sticky under the header, Home filter bar) -->
+    <div class="sf-sticky-filters">
+      <div class="ms-bar">
+        <label class="ms-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5D6679" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+          <span class="sr-only">Search submissions</span>
+          <input type="search" value="{{q}}" onInput="{{onSearch}}" placeholder="Search by title, workflow, ID, project or site">
+        </label>
+        <button type="button" class="{{filterBtnClass}}" onClick="{{toggleFilters}}" aria-expanded="{{filtersOpen}}" aria-controls="ms-filter-panel">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"></path></svg>
+          Filters
+          <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><span class="ms-fbadge" aria-label="{{activeCount}} active">{{activeCount}}</span></sc-if>
+        </button>
+        <label class="ms-sortwrap">
+          <span class="sr-only">Sort submissions</span>
+          <select class="ms-select" value="{{sort}}" onChange="{{onSort}}">
+            <sc-for list="{{sortOpts}}" as="o" hint-placeholder-count="2">
+              <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+            </sc-for>
+          </select>
+        </label>
+        <div class="ms-seg" role="group" aria-label="Layout">
+          <button type="button" class="ms-seg-btn" onClick="{{showGrid}}" aria-pressed="{{gridOn}}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path></svg>Grid
+          </button>
+          <button type="button" class="ms-seg-btn" onClick="{{showList}}" aria-pressed="{{listOn}}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>List
+          </button>
+        </div>
+        <sc-if value="{{filtersOpen}}" hint-placeholder-val="{{false}}">
+          <div class="ms-panel" id="ms-filter-panel" role="group" aria-label="Filters">
+            <span class="ms-panel-label">Filter by</span>
+            <sc-for list="{{filterDefs}}" as="f" hint-placeholder-count="3">
+              <label style="display: contents">
+                <span class="sr-only">{{f.label}}</span>
+                <select class="{{f.cls}}" value="{{f.value}}" onChange="{{f.on}}">
+                  <sc-for list="{{f.opts}}" as="o" hint-placeholder-count="3">
+                    <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+                  </sc-for>
+                </select>
+              </label>
+            </sc-for>
+            <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><button type="button" class="ms-link-btn" onClick="{{clearFilters}}">Clear filters</button></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+      <div class="ms-empty">
+        <span class="ms-empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{emptyIcon}}"></path></svg></span>
+        <h2>{{emptyTitle}}</h2>
+        <p>{{emptyText}}</p>
+        <sc-if value="{{narrowed}}" hint-placeholder-val="{{false}}"><button type="button" class="ms-fbtn" onClick="{{clearAll}}">Clear search &amp; filters</button></sc-if>
+      </div>
+    </sc-if>
+
+    <!-- Grid view -->
+    <sc-if value="{{showCards}}" hint-placeholder-val="{{true}}">
+      <ul class="ms-grid" aria-label="My submissions">
+        <sc-for list="{{subs}}" as="s" hint-placeholder-count="6">
+          <li>
+            <article class="{{s.cardCls}}" aria-label="{{s.title}} – {{s.status}}">
+              <div class="ms-card-top">
+                <span class="ms-wf" title="{{s.workflow}}">{{s.workflow}}</span>
+                <span class="ms-id">{{s.id}}</span>
+              </div>
+              <h3 class="ms-title"><a href="my-submission-detail.html" class="ms-card-link">{{s.title}}</a></h3>
+              <sc-if value="{{s.loc}}" hint-placeholder-val="{{true}}">
+                <div class="ms-loc" title="{{s.loc}}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Project and site" role="img"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                  <span>{{s.loc}}</span>
+                </div>
+              </sc-if>
+              <div class="ms-state">
+                <span class="sf-chip" style="{{s.statusStyle}}"><span class="sf-chip-dot" style="{{s.dotStyle}}" aria-hidden="true"></span>{{s.status}}</span>
+                <sc-if value="{{s.step}}" hint-placeholder-val="{{true}}"><span class="ms-step">{{s.step}}</span></sc-if>
+              </div>
+              <sc-if value="{{s.note}}" hint-placeholder-val="{{false}}"><p class="ms-note">{{s.note}}</p></sc-if>
+              <div class="ms-card-foot">
+                <span class="ms-date-pill">Submitted {{s.dateText}}</span>
+                <a href="{{s.btnHref}}" class="{{s.btnCls}}">{{s.action}}</a>
+              </div>
+            </article>
+          </li>
+        </sc-for>
+      </ul>
+    </sc-if>
+
+    <!-- List view -->
+    <sc-if value="{{showRows}}" hint-placeholder-val="{{false}}">
+      <div class="ms-table" role="table" aria-label="My submissions">
+        <div class="ms-tr ms-thead" role="row">
+          <span class="ms-th" role="columnheader">Submission</span>
+          <span class="ms-th" role="columnheader">Project · Site</span>
+          <span class="ms-th" role="columnheader">Status</span>
+          <span class="ms-th" role="columnheader" style="color: #0070FF">Submitted {{sortArrow}}</span>
+          <span class="ms-th" role="columnheader"><span class="sr-only">Actions</span></span>
+        </div>
+        <div class="ms-tbody" role="rowgroup">
+          <sc-for list="{{subs}}" as="s" hint-placeholder-count="6">
+            <div class="{{s.rowCls}}" role="row">
+              <span class="ms-td ms-td-main ms-c-main" role="cell">
+                <a href="my-submission-detail.html" class="ms-td-title ms-card-link">{{s.title}}</a>
+                <span class="ms-td-sub">{{s.workflow}} · {{s.id}}</span>
+                <sc-if value="{{s.note}}" hint-placeholder-val="{{false}}"><span class="ms-td-note">{{s.note}}</span></sc-if>
+              </span>
+              <span class="ms-td ms-td-loc ms-c-loc" role="cell" title="{{s.loc}}">
+                <sc-if value="{{s.loc}}" hint-placeholder-val="{{true}}">{{s.loc}}</sc-if>
+                <sc-if value="{{s.noLoc}}" hint-placeholder-val="{{false}}"><span class="ms-muted ms-noloc" aria-label="No project or site">—</span></sc-if>
+              </span>
+              <span class="ms-td ms-td-status ms-c-status" role="cell">
+                <span class="sf-chip" style="{{s.statusStyle}}"><span class="sf-chip-dot" style="{{s.dotStyle}}" aria-hidden="true"></span>{{s.status}}</span>
+                <sc-if value="{{s.step}}" hint-placeholder-val="{{true}}"><span class="ms-step">{{s.step}}</span></sc-if>
+              </span>
+              <span class="ms-td ms-c-date" role="cell"><span class="ms-inline-k">Submitted </span>{{s.dateText}}</span>
+              <span class="ms-td ms-td-act ms-c-act" role="cell"><a href="{{s.btnHref}}" class="{{s.btnCls}}" aria-label="{{s.action}} – {{s.title}}">{{s.action}}</a></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="MySubmissions">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { q: '', status: '', workflow: '', project: '', sort: 'latest', view: 'grid', filtersOpen: false };
+  }
+  renderVals() {
+    const S = this.state;
+
+    // Records as shown in the card design. "[Project]", "[Site]", "[HSE Officer]" etc. are the design's
+    // placeholders — replace with real values when known.
+    const ALL = [
+      { id: 'SH-0077', workflow: 'Site Handover & Inspection', title: 'Handover – Level 3 slab', project: 'Bangalore Metro Phase 2', site: 'Hebbal Terminal',
+        status: 'Returned to you', step: 'Waiting on you', note: 'Returned by [HSE Officer]: “Gas test reading missing for zone B.”', date: '2026-11-18', action: 'Fix & resubmit' },
+      { id: 'HW-0213', workflow: 'Hot Work Permit', title: 'Welding at Bay 4', project: 'Bangalore Metro Phase 2', site: 'Hebbal Terminal',
+        status: 'In progress', step: 'Now with HSE approval', date: '2026-11-19' },
+      { id: 'PTW-0518', workflow: 'Permit To Work', title: 'Confined space entry – Tank 2', project: '[Project]', site: '[Site]',
+        status: 'In progress', step: 'Now with Supervisor review', date: '2026-11-11' },
+      { id: 'WF-0131', workflow: 'Incident Reporting', title: 'Near miss – falling object', project: '[Project]', site: '[Site]',
+        status: 'In progress', step: 'Now with Investigation', date: '2026-11-10' },
+      { id: 'PTW-0497', workflow: 'Permit To Work', title: 'Excavation near utility line', project: 'Bangalore Metro Phase 2', site: 'Hebbal Terminal',
+        status: 'Approved', step: 'Approved by [HSE Lead]', date: '2026-11-06' },
+      { id: 'HW-0201', workflow: 'Hot Work Permit', title: 'Cutting work – Platform 1', project: '[Project]', site: '[Site]',
+        status: 'Rejected', step: 'Rejected by [HSE Officer]', date: '2026-11-03' }
+    ];
+
+    // Status chip colours from the design: returned = red (needs your action), in progress = amber,
+    // approved / completed = green, rejected and anything else = grey.
+    const tone = st => {
+      const s = (st || '').toLowerCase();
+      if (/return/.test(s)) return { bg: '#FEF3F2', fg: '#B42318', dot: '#D92D20', alert: true };
+      if (/complet|approv|closed/.test(s)) return { bg: '#ECFDF3', fg: '#067647', dot: '#12B76A' };
+      if (/progress|pending|review/.test(s)) return { bg: '#FFFAEB', fg: '#B54708', dot: '#F79009' };
+      return { bg: '#F2F4F7', fg: '#344054', dot: '#667085' };
+    };
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const fmt = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]}` : ''; };
+
+    // ---- search, filters, sort (submissions that need your action stay on top) ----
+    const q = S.q.trim().toLowerCase();
+    const list = ALL.map((s, i) => ({ ...s, i, t: tone(s.status) }))
+      .filter(s => (!S.status || s.status === S.status) && (!S.workflow || s.workflow === S.workflow) && (!S.project || s.project === S.project))
+      .filter(s => !q || [s.title, s.workflow, s.id, s.project, s.site, s.status, s.step, s.note].some(v => v && v.toLowerCase().includes(q)))
+      .sort((a, b) => (b.t.alert ? 1 : 0) - (a.t.alert ? 1 : 0)
+        || ((S.sort === 'oldest' ? 1 : -1) * (a.date || '').localeCompare(b.date || '')) || a.i - b.i);
+
+    const subs = list.map(s => {
+      const t = s.t, loc = [s.project, s.site].filter(Boolean).join(' · ');
+      return {
+        id: s.id || '', title: s.title || 'Untitled submission', workflow: s.workflow || 'Workflow not specified',
+        loc, noLoc: !loc, step: s.step || '', note: s.note || '',
+        status: s.status || 'Unknown',
+        statusStyle: `background:${t.bg};color:${t.fg}`, dotStyle: `background:${t.dot}`,
+        dateText: fmt(s.date) || 'date not available',
+        action: s.action || 'View details',
+        // Fix & resubmit opens the task to act on; everything else opens the submission detail page.
+        btnHref: s.action ? 'task-details.html' : 'my-submission-detail.html',
+        btnCls: 'ms-btn' + (t.alert ? ' ms-btn--primary' : ''),
+        cardCls: 'ms-card' + (t.alert ? ' ms-card--alert' : ''),
+        rowCls: 'ms-tr' + (t.alert ? ' ms-tr--alert' : '')
+      };
+    });
+
+    // Filter options skip the design's "[…]" placeholders.
+    const uniq = k => [...new Set(ALL.map(s => s[k]).filter(v => v && !/^\[.*\]$/.test(v)))].sort();
+    const opts = (key, prefix, values) => [{ value: '', label: `${prefix}: All`, sel: !S[key] }]
+      .concat(values.map(v => ({ value: v, label: `${prefix}: ${v}`, sel: S[key] === v })));
+    const filterDefs = [
+      { key: 'status', label: 'Status', values: uniq('status') },
+      { key: 'workflow', label: 'Workflow', values: uniq('workflow') },
+      { key: 'project', label: 'Project', values: uniq('project') }
+    ].map(f => ({ label: f.label, value: S[f.key], opts: opts(f.key, f.label, f.values),
+      cls: 'ms-select' + (S[f.key] ? ' is-on' : ''),
+      on: e => this.setState({ [f.key]: e.target.value }) }));
+
+    const activeCount = ['status', 'workflow', 'project'].filter(k => S[k]).length;
+    const narrowed = !!(activeCount || q);
+    const SORTS = [{ value: 'latest', label: 'Sort: Latest first' }, { value: 'oldest', label: 'Sort: Oldest first' }];
+    const isEmpty = subs.length === 0;
+
+    return {
+      subs, filterDefs, activeCount: activeCount ? String(activeCount) : '',
+      q: S.q, sort: S.sort, filtersOpen: S.filtersOpen,
+      sortOpts: SORTS.map(o => ({ ...o, sel: S.sort === o.value })),
+      sortArrow: S.sort === 'oldest' ? '↑' : '↓',
+      filterBtnClass: 'ms-fbtn' + (S.filtersOpen || activeCount ? ' is-on' : ''),
+      narrowed, isEmpty,
+      showCards: !isEmpty && S.view === 'grid', showRows: !isEmpty && S.view === 'list',
+      gridOn: S.view === 'grid' ? 'true' : 'false', listOn: S.view === 'list' ? 'true' : 'false',
+      emptyIcon: narrowed ? 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3' : 'M22 2 11 13M22 2l-7 20-4-9-9-4z',
+      emptyTitle: narrowed ? 'No submissions match' : 'No submissions yet',
+      emptyText: narrowed ? 'Try a different search term, or clear the filters to see all your submissions.' : 'Records you submit will appear here, so you can track their status in one place.',
+      onSearch: e => this.setState({ q: e.target.value }),
+      onSort: e => this.setState({ sort: e.target.value }),
+      toggleFilters: () => this.setState({ filtersOpen: !S.filtersOpen }),
+      clearFilters: () => this.setState({ status: '', workflow: '', project: '' }),
+      clearAll: () => this.setState({ q: '', status: '', workflow: '', project: '' }),
+      showGrid: () => this.setState({ view: 'grid' }),
+      showList: () => this.setState({ view: 'list' })
+    };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

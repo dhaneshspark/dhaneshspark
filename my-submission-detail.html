@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submission details · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Breadcrumb (same as task details) */
+.sf-crumbs ol{list-style:none;margin:0;padding:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:13px;line-height:20px}
+.sf-crumbs li{display:inline-flex;align-items:center;min-width:0}
+.sf-crumb-link{display:inline-flex;align-items:center;gap:6px;margin-left:-6px;padding:2px 6px;border-radius:6px;color:#0070FF;font-weight:500;transition:background-color .15s ease}
+.sf-crumb-link:hover{background:#EFF4FF;color:#0070FF}
+.sf-crumb-link:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.sf-crumb-sep{color:#98A2B3}
+.sf-crumb-current{color:#101828;font-weight:600}
+/* Chips & buttons (same as task details) */
+.sf-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;line-height:16px;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.sf-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:9px;border:1px solid #D0D5DD;background:#FFFFFF;font:inherit;font-size:13px;font-weight:600;color:#344054;cursor:pointer;white-space:nowrap;transition:background-color .15s ease,border-color .15s ease}
+.sf-btn:hover{background:#F9FAFB;border-color:#98A2B3}
+.sf-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.sf-btn--accent{border-color:#B2CCFF;background:#EFF4FF;color:#0070FF}
+.sf-btn--accent:hover{background:#E0EAFF;border-color:#84ADFF;color:#0070FF}
+.sf-btn--ghost{border-color:transparent;background:#EFF4FF;color:#0070FF}
+.sf-btn--ghost:hover{background:#E0EAFF;border-color:transparent;color:#0070FF}
+
+/* ---------- Page ---------- */
+.sd-wrap{flex:1;padding:22px 32px 32px;display:flex;flex-direction:column;gap:20px}
+.sd-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px 20px;flex-wrap:wrap}
+.sd-head-text{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.sd-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-size:13px;line-height:18px;color:#475467}
+.sd-code{padding:2px 6px;border-radius:6px;background:#F2F4F7;border:1px solid #E4E7EC;font-size:11px;font-weight:600;letter-spacing:.02em;color:#344054}
+.sd-wf{font-weight:600;color:#344054}
+.sd-dot{color:#98A2B3}
+.sd-title{margin:0;font-size:22px;font-weight:600;line-height:1.3;color:#101828;overflow-wrap:anywhere}
+.sd-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sd-chip-dot{width:6px;height:6px;border-radius:50%;flex:none}
+
+.sd-body{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.sd-main{min-width:0;display:flex;flex-direction:column;gap:20px}
+.sd-card{background:#FFFFFF;border:1px solid #E4E7EC;border-radius:14px;padding:20px;box-sizing:border-box;min-width:0}
+.sd-card h2{margin:0;font-size:16px;font-weight:700;line-height:22px;color:#101828}
+.sd-summary p{margin:10px 0 0;font-size:14px;line-height:1.6;color:#344054}
+
+/* Key information (right rail) */
+.sd-info{position:sticky;top:84px}
+.sd-info dl{margin:14px 0 0;display:flex;flex-direction:column;gap:12px}
+.sd-info dl > div{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sd-info dt{flex:none;font-size:13px;line-height:18px;color:#475467}
+.sd-info dd{margin:0;min-width:0;font-size:13px;line-height:18px;font-weight:600;color:#101828;text-align:right;overflow-wrap:anywhere}
+.sd-info dd.is-empty{font-weight:400;color:#667085}
+
+/* Process timeline */
+.sd-proc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.sd-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.sd-step{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr);gap:14px;padding-bottom:12px}
+.sd-step:last-child{padding-bottom:0}
+.sd-step::before{content:"";position:absolute;left:10px;top:30px;bottom:-2px;width:2px;border-radius:2px;background:#12B76A}
+.sd-step:last-child::before{display:none}
+.sd-mark{position:relative;z-index:1;width:22px;height:22px;margin-top:16px;border-radius:50%;background:#067647;color:#FFFFFF;display:flex;align-items:center;justify-content:center}
+.sd-sc{min-width:0;border:1px solid #E4E7EC;border-radius:12px;background:#FFFFFF;overflow:hidden}
+.sd-sc-head{width:100%;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:14px 16px;border:0;background:transparent;font:inherit;text-align:left;cursor:pointer}
+.sd-sc-head:hover{background:#F9FAFB}
+.sd-sc-head:focus-visible{outline:2px solid #0070FF;outline-offset:-2px;border-radius:12px}
+.sd-sc-title{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.sd-sc-title strong{font-size:14px;font-weight:600;line-height:20px;color:#101828}
+.sd-sc-title span{font-size:12px;line-height:16px;color:#475467}
+.sd-sc-tags{display:flex;align-items:center;gap:8px;flex:none}
+.sd-chev{flex:none;color:#475467;transition:transform .15s ease}
+.sd-chev.is-open{transform:rotate(180deg)}
+.sd-sc-body{display:flex;flex-direction:column;gap:14px;padding:14px 16px 16px;border-top:1px solid #F2F4F7}
+.sd-desc{margin:0;font-size:13px;line-height:19px;color:#344054}
+.sd-fields{display:grid;gap:12px 16px}
+.sd-fields span{display:block;font-size:12px;line-height:16px;color:#475467}
+.sd-fields strong{display:block;margin-top:2px;font-size:14px;font-weight:600;line-height:20px;color:#101828}
+.sd-forms-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sd-forms-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#344054}
+.sd-forms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.sd-form{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:#F9FAFB;border:1px solid #EEF0F3}
+.sd-form-icon{flex:none;width:32px;height:32px;border-radius:8px;background:#FFFFFF;border:1px solid #E4E7EC;display:flex;align-items:center;justify-content:center;color:#475467}
+.sd-form-text{min-width:0;display:flex;flex-direction:column;gap:2px}
+.sd-form-text strong{font-size:13px;font-weight:600;line-height:18px;color:#101828;overflow-wrap:anywhere}
+.sd-form-text span{font-size:12px;line-height:16px;color:#475467}
+
+/* ---------- Tablet ---------- */
+@media (max-width:1024px){
+  .sd-wrap{padding:20px 24px 28px}
+  .sd-body{grid-template-columns:minmax(0,1fr)}
+  .sd-info{position:static;order:-1}
+}
+/* ---------- Mobile ---------- */
+@media (max-width:640px){
+  .sd-wrap{padding:16px 16px 24px;gap:16px}
+  .sd-title{font-size:19px}
+  .sd-head > .sf-btn{width:100%;white-space:normal}
+  .sd-card{padding:16px}
+  .sd-step{grid-template-columns:20px minmax(0,1fr);gap:10px}
+  .sd-step::before{left:9px}
+  .sd-mark{width:20px;height:20px}
+  .sd-sc-head{padding:12px}
+  .sd-sc-body{padding:12px}
+  .sd-fields{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  .sd-forms-head .sf-btn{width:100%}
+}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="SubmissionDetail"></div>
+<template data-dc-component="SubmissionDetail">
+<div style="position: relative; min-height: 100vh; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Left sidebar (shared: assets/app-shell.js) -->
+  <dc-import name="AppSidebar" active="sent"></dc-import>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column">
+    <!-- Top header (shared: assets/app-shell.js) -->
+    <dc-import name="AppTopbar" active="sent" inset="{{false}}"></dc-import>
+
+    <div class="sd-wrap">
+      <!-- Breadcrumb, meta, title, status + all forms -->
+      <div class="sd-head">
+        <div class="sd-head-text">
+          <nav aria-label="Breadcrumb" class="sf-crumbs">
+            <ol>
+              <li><a href="my-submissions.html" class="sf-crumb-link">My submissions</a></li>
+              <li class="sf-crumb-sep" aria-hidden="true">/</li>
+              <li><span class="sf-crumb-current" aria-current="page">{{code}}</span></li>
+            </ol>
+          </nav>
+          <div class="sd-meta">
+            <span class="sd-wf">{{workflow}}</span>
+            <span class="sd-dot" aria-hidden="true">·</span>
+            <span>Submitted {{submitted}}</span>
+          </div>
+          <h1 class="sd-title">{{title}}</h1>
+          <div class="sd-chips">
+            <span class="sf-chip" style="background: #ECFDF3; color: #067647"><span class="sd-chip-dot" style="background: #12B76A" aria-hidden="true"></span>{{status}}</span>
+            <span class="sf-chip" style="background: #F2F4F7; color: #344054">{{stepsDone}}</span>
+          </div>
+        </div>
+        <button type="button" class="sf-btn sf-btn--accent">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"></path></svg>
+          All forms in this submission ( {{formCount}} )
+        </button>
+      </div>
+
+      <div class="sd-body">
+        <div class="sd-main">
+          <!-- Summary -->
+          <section class="sd-card sd-summary" aria-labelledby="sd-summary-h">
+            <h2 id="sd-summary-h">Summary</h2>
+            <p>{{summary}}</p>
+          </section>
+
+          <!-- Process -->
+          <section class="sd-card" aria-labelledby="sd-proc-h">
+            <div class="sd-proc-head">
+              <h2 id="sd-proc-h">Process</h2>
+              <button type="button" class="sf-btn" onClick="{{toggleAll}}">{{toggleAllLabel}}</button>
+            </div>
+            <ol class="sd-steps">
+              <sc-for list="{{steps}}" as="s" hint-placeholder-count="7">
+                <li class="sd-step">
+                  <span class="sd-mark" aria-label="Completed" role="img"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+                  <div class="sd-sc">
+                    <button type="button" class="sd-sc-head" onClick="{{s.toggle}}" aria-expanded="{{s.expanded}}">
+                      <span class="sd-sc-title"><strong>{{s.name}}</strong><span>{{s.who}} · {{s.date}}</span></span>
+                      <span class="sd-sc-tags">
+                        <sc-if value="{{s.formsChip}}" hint-placeholder-val="{{true}}"><span class="sf-chip" style="background: #F2F4F7; color: #344054">{{s.formsChip}}</span></sc-if>
+                        <span class="sf-chip" style="background: #ECFDF3; color: #067647">✓ Completed</span>
+                        <svg class="{{s.chevCls}}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                      </span>
+                    </button>
+                    <sc-if value="{{s.open}}" hint-placeholder-val="{{true}}">
+                      <div class="sd-sc-body">
+                        <sc-if value="{{s.desc}}" hint-placeholder-val="{{true}}"><p class="sd-desc">{{s.desc}}</p></sc-if>
+                        <div class="sd-fields" style="{{s.fieldsStyle}}">
+                          <sc-for list="{{s.fields}}" as="f" hint-placeholder-count="2">
+                            <div><span>{{f.k}}</span><strong>{{f.v}}</strong></div>
+                          </sc-for>
+                        </div>
+                        <sc-if value="{{s.hasForms}}" hint-placeholder-val="{{true}}">
+                          <div class="sd-forms-head">
+                            <span class="sd-forms-label">{{s.formsLabel}}</span>
+                            <button type="button" class="sf-btn sf-btn--ghost">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                              View forms
+                            </button>
+                          </div>
+                          <ul class="sd-forms">
+                            <sc-for list="{{s.forms}}" as="fm" hint-placeholder-count="1">
+                              <li class="sd-form">
+                                <span class="sd-form-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"></path></svg></span>
+                                <span class="sd-form-text"><strong>{{fm.name}}</strong><span>Submitted by {{fm.by}}</span></span>
+                              </li>
+                            </sc-for>
+                          </ul>
+                        </sc-if>
+                      </div>
+                    </sc-if>
+                  </div>
+                </li>
+              </sc-for>
+            </ol>
+          </section>
+        </div>
+
+        <!-- Key information -->
+        <aside class="sd-card sd-info" aria-labelledby="sd-info-h">
+          <h2 id="sd-info-h">Key information</h2>
+          <dl>
+            <sc-for list="{{info}}" as="i" hint-placeholder-count="7">
+              <div><dt>{{i.k}}</dt><dd class="{{i.cls}}">{{i.v}}</dd></div>
+            </sc-for>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="SubmissionDetail">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    // Collapsed by default, as in the reference: Site Safety Inspection and Submit by Email.
+    this.state = { closed: { 2: true, 6: true } };
+  }
+  renderVals() {
+    const D = '16 Apr 2026';
+    const STEPS = [
+      { name: 'Incident Reporting Task', who: 'Daniel Johnson', desc: 'Employee reports the incident with details such as type, severity, location and attachments.',
+        forms: [{ name: 'Incident Reporting Form', by: 'Daniel Johnson' }] },
+      { name: 'Incident Investigation', who: 'Sreekkutty MS', desc: 'Perform root cause analysis and identify contributing factors.',
+        forms: [{ name: 'Incident Investigation Form', by: 'Sreekkutty MS' }] },
+      { name: 'Site Safety Inspection', who: 'Abhinav TP', desc: '', forms: [] },
+      { name: 'Corrective Action', who: 'Irfan Habeeb', desc: 'Responsible person carries out the planned actions and uploads proof.',
+        forms: [{ name: 'Incident Corrective Action Form', by: 'Irfan Habeeb' }] },
+      { name: 'HSE Closure', who: 'Abhinav TP', desc: 'HSE validates closure after corrective action.', action: 'Resolve', forms: [] },
+      { name: 'Upload Storage', who: 'Abhinav TP', desc: 'Final records are filled in and filed in the document registry.',
+        forms: [
+          { name: 'Site Safety Inspection Form', by: 'Abhinav TP' },
+          { name: 'Incident Reporting Form', by: 'Abhinav TP' },
+          { name: 'Incident Investigation Form', by: 'Abhinav TP' },
+          { name: 'Incident Corrective Action Form', by: 'Abhinav TP' }] },
+      { name: 'Submit by Email', who: 'System', desc: '', forms: [] }
+    ];
+    const closed = this.state.closed;
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    const steps = STEPS.map((s, i) => {
+      const open = !closed[i], n = s.forms.length;
+      const fields = [{ k: 'Submitted by', v: s.who }, { k: 'Submitted on', v: D }].concat(s.action ? [{ k: 'Action taken', v: s.action }] : []);
+      return { ...s, date: D, open, expanded: open ? 'true' : 'false',
+        chevCls: 'sd-chev' + (open ? ' is-open' : ''),
+        formsChip: n ? plural(n, 'form') : '', hasForms: n > 0,
+        formsLabel: `${plural(n, 'form')} attached`,
+        fields, fieldsStyle: `grid-template-columns:repeat(${fields.length},minmax(0,1fr))`,
+        toggle: () => this.setState({ closed: { ...this.state.closed, [i]: open } }) };
+    });
+    const anyClosed = steps.some(s => !s.open);
+    const info = [
+      { k: 'Instance code', v: 'INS0009' },
+      { k: 'Reported on', v: D },
+      { k: 'Reported by', v: 'Daniel Johnson' },
+      { k: 'Location', v: 'Warehouse Block B, Industrial Area, Kochi' },
+      { k: 'Project', v: '' },
+      { k: 'Site', v: '' },
+      { k: 'Completed on', v: D }
+    ].map(r => ({ k: r.k, v: r.v || 'Not set', cls: r.v ? '' : 'is-empty' }));
+    return {
+      code: 'INS0009', workflow: 'Incident Reporting Workflow', submitted: D,
+      title: 'Smoke from electrical panel – Warehouse Block B',
+      status: 'Completed', stepsDone: `${STEPS.length} of ${STEPS.length} steps done`, formCount: '7',
+      summary: 'During routine operations, a burning smell and light smoke were noticed from the main electrical distribution panel in Warehouse Block B. Upon inspection, a minor short circuit was identified in one of the wiring connections. The maintenance team immediately isolated the power supply to prevent escalation. No injuries were reported, and the situation was brought under control within 15 minutes.',
+      steps, info,
+      toggleAllLabel: anyClosed ? 'Expand all' : 'Collapse all',
+      toggleAll: () => this.setState({ closed: anyClosed ? {} : Object.fromEntries(STEPS.map((_, i) => [i, true])) })
+    };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

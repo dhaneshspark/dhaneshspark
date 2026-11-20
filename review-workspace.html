@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task details – Review workspace · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+
+/* ---------- Review workspace (everything below the focus header) ---------- */
+.rw-main{flex:1;width:100%;box-sizing:border-box;padding:0;display:grid;grid-template-columns:260px minmax(0,1fr);gap:0;align-items:start}
+.rw-card{background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.rw-card--clear{background:transparent;box-shadow:none}
+.rw-eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475467}
+.rw-sr{position:absolute;left:-9999px}
+
+/* Steps navigator */
+/* Full-height white sidebar flush to the left edge */
+.rw-steps{align-self:stretch;box-sizing:border-box;padding:20px 12px 12px;display:flex;flex-direction:column;gap:10px;border:0;border-right:1px solid #E4E7EC;border-radius:0;box-shadow:none}
+.rw-steps .rw-eyebrow{padding:0 8px}
+.rw-steplist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rw-step{display:flex;gap:10px;align-items:stretch;min-width:0}
+.rw-rail{display:flex;flex-direction:column;align-items:center;width:22px;flex:none;padding-top:14px}
+.rw-steplist button:hover{background:#F9FAFB}
+.rw-steplist button[aria-current="step"]:hover{background:#EFF4FF}
+.rw-steplist button:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+
+/* Form pane */
+.rw-pane{min-width:0;box-sizing:border-box;padding:20px 24px 24px;display:flex;flex-direction:column;gap:20px}
+/* Tabs: two separate pills, not inside a card */
+.rw-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+.rw-tabs button:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.rw-panel{display:flex;flex-direction:column;min-width:0}
+.rw-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:20px 24px;border-bottom:1px solid #EAECF0}
+.rw-head--stack{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
+.rw-head-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rw-title{margin:0;font-size:18px;font-weight:600;line-height:28px;color:#101828}
+.rw-sub{margin-top:2px;font-size:13px;color:#475467}
+.rw-count{font-size:13px;font-weight:600;color:#344054;white-space:nowrap}
+.rw-progress{height:6px;border-radius:999px;background:#EEF0F3;overflow:hidden}
+.rw-pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:#F2F4F7;font-size:12px;font-weight:600;color:#344054}
+.rw-body{padding:20px 24px;display:flex;flex-direction:column;gap:20px}
+.rw-foot{padding:16px 24px;border-top:1px solid #EAECF0;background:#F9FAFB;border-radius:0 0 12px 12px}
+
+/* Contractor submission (read-only) */
+.rw-ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.rw-ref{border:1px solid #EAECF0;border-radius:10px;overflow:hidden}
+.rw-ref-title{padding:10px 16px;background:#F9FAFB;border-bottom:1px solid #EAECF0;font-size:14px;font-weight:600;color:#101828}
+.rw-ref-row{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;font-size:14px}
+.rw-ref-row + .rw-ref-row{border-top:1px solid #F2F4F7}
+.rw-ref-row span:first-child{color:#5D6679}
+.rw-ref-row span:last-child{font-weight:500;color:#101828;text-align:right}
+.rw-files{display:flex;flex-direction:column;gap:8px}
+.rw-file{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #EAECF0;border-radius:10px;background:#FFFFFF;font-size:14px;font-weight:500;color:#101828;transition:background-color .15s ease,border-color .15s ease}
+.rw-file:hover{background:#F9FAFB;border-color:#D0D5DD;color:#101828}
+.rw-file-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:#F2F4F7;flex:none}
+
+/* Checklist */
+.rw-q{margin:0;border:0;padding:16px 24px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.rw-q + .rw-q{border-top:1px solid #F2F4F7}
+.rw-q-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.rw-q-text{flex:1 1 280px;font-size:14px;font-weight:500;line-height:20px;color:#101828}
+.rw-q-n{display:inline-block;min-width:20px;color:#667085;font-weight:600}
+.rw-opts{display:flex;gap:6px}
+.rw-opts button:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+/* Checklist: each question is its own card, no outer box */
+.rw-checklist{border:0;border-radius:0}
+.rw-checklist .rw-head{padding:0 0 14px;border-bottom:0}
+.rw-checklist .rw-head-row{align-items:center}
+.rw-checklist .rw-title{font-size:18px;font-weight:700}
+.rw-checklist .rw-count{color:#101828}
+.rw-checklist .rw-progress{background:#EAECF0}
+.rw-qlist{display:flex;flex-direction:column;gap:14px}
+.rw-checklist .rw-q{padding:12px 16px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:10px}
+.rw-checklist .rw-q + .rw-q{border-top:1px solid #E4E7EC}
+.rw-checklist .rw-q-text{font-size:14px}
+.rw-checklist .rw-q-n{min-width:0;color:#101828;font-weight:500}
+.rw-checklist .rw-opts{gap:6px}
+/* Footer: divider line, no card */
+.rw-checklist .rw-foot{margin-top:16px;padding:16px 0 0;background:transparent;border:0;border-top:1px solid #E4E7EC;border-radius:0}
+.rw-checklist .rw-btn--secondary{background:#FFFFFF;border-color:#D0D5DD;color:#344054}
+.rw-checklist .rw-btn--secondary:hover{background:#F9FAFB;border-color:#98A2B3}
+.rw-note{display:flex;flex-direction:column;gap:6px}
+.rw-note textarea{font:inherit;font-size:14px;padding:10px 12px;border:1px solid #FDA29B;border-radius:8px;resize:vertical;box-sizing:border-box;width:100%}
+.rw-note textarea:focus{outline:none;border-color:#F04438;box-shadow:0 0 0 3px #FEE4E2}
+
+/* Permit form */
+.rw-callout{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:10px;background:#EFF4FF;border:1px solid #B2CCFF}
+.rw-callout-text{font-size:14px;line-height:1.5;color:#1E3A8A}
+.rw-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px 20px}
+.rw-field{display:flex;flex-direction:column;gap:6px}
+.rw-field span{font-size:13px;font-weight:600;color:#344054}
+.rw-input{height:44px;box-sizing:border-box;width:100%;padding:0 12px;font:inherit;font-size:14px;color:#101828;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF;transition:border-color .15s ease,box-shadow .15s ease}
+.rw-input:focus{outline:none;border-color:#84ADFF;box-shadow:0 0 0 3px #EFF4FF}
+.rw-foot-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.rw-hint{font-size:13px;color:#475467}
+
+/* Buttons (same look as the rest of the app) */
+.rw-btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;transition:background-color .15s ease,border-color .15s ease}
+.rw-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.rw-btn--secondary{border:1px solid #B2CCFF;background:#EFF4FF;color:#0070FF}
+.rw-btn--secondary:hover{background:#E0EAFF;border-color:#84ADFF}
+.rw-btn--danger{border:1px solid #B42318;background:#FFFFFF;color:#B42318}
+.rw-btn--danger:hover{background:#FEF3F2}
+.rw-btn--primary{border:0;padding:0 18px;background:#0070FF;color:#FFFFFF}
+.rw-btn--primary:hover{background:#0059CC}
+.rw-actions{display:flex;flex-direction:column;gap:10px}
+.rw-actions-hint{align-self:flex-end}
+.rw-actions-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rw-actions-row .rw-spacer{flex:1}
+.rw-actions--stacked{align-items:flex-end}
+.rw-actions--stacked .rw-actions-col{display:flex;flex-direction:column;gap:10px;width:280px;max-width:100%}
+
+/* Tablet: steps become a horizontal stepper above the form */
+@media (max-width:1024px){
+  .rw-main{grid-template-columns:minmax(0,1fr)}
+  .rw-steps{padding:16px 12px 8px;border-right:0;border-bottom:1px solid #E4E7EC}
+  .rw-steplist{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+  .rw-steplist .rw-line{display:none}
+}
+/* Mobile */
+@media (max-width:640px){
+  .rw-pane{padding:16px;gap:16px}
+  .rw-steplist{display:flex;flex-direction:column;gap:0}
+  .rw-steplist .rw-line{display:block}
+  .rw-tabs{flex-direction:column}
+  .rw-head,.rw-body,.rw-foot{padding-left:16px;padding-right:16px}
+  .rw-q{padding:16px}
+  .rw-opts{width:100%}
+  .rw-opts button{flex:1}
+  .rw-actions-hint{align-self:flex-start}
+  .rw-actions-row{flex-direction:column-reverse;align-items:stretch}
+  .rw-actions-row .rw-spacer{display:none}
+  .rw-actions-row button,.rw-foot-row button{width:100%}
+  .rw-actions--stacked{align-items:stretch}
+  .rw-actions--stacked .rw-actions-col{width:100%}
+}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="TaskWorkspace"></div>
+<template data-dc-component="TaskWorkspace">
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- Focus header -->
+  <header style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 12px 24px; background: #FFFFFF; border-bottom: 1px solid #E4E7EC">
+    <sc-if value="{{notApproved}}" hint-placeholder-val="{{true}}">
+      <a href="task-details.html" class="rw-btn rw-btn--secondary" style="height: 40px; padding: 0 12px; gap: 6px">← Back to task</a>
+    </sc-if>
+    <sc-if value="{{approved}}" hint-placeholder-val="{{false}}">
+      <a href="task-details-approved.html" class="rw-btn rw-btn--secondary" style="height: 40px; padding: 0 12px; gap: 6px">← Back to task</a>
+    </sc-if>
+    <div style="flex: 1 1 280px; min-width: 0">
+      <div style="font-size: 12px; color: #475467"><span style="font-family: Inter">INS0499</span> · Permit To Work · Step 2 of 4</div>
+      <div style="font-family: Inter; font-size: 20px; font-weight: 600">Supervisor Review</div>
+    </div>
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #067647">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+      Draft saved
+    </span>
+  </header>
+
+  <div class="rw-main">
+
+    <!-- Steps & forms navigator -->
+    <nav aria-label="Steps and forms in this permit" class="rw-card rw-steps">
+      <span class="rw-eyebrow">Steps in this permit</span>
+      <ol class="rw-steplist">
+        <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+          <li class="rw-step">
+            <!-- Timeline rail -->
+            <div aria-hidden="true" class="rw-rail">
+              <span style="{{s.dot}}">{{s.dotMark}}</span>
+              <span class="rw-line" style="{{s.line}}"></span>
+            </div>
+            <sc-if value="{{s.clickable}}" hint-placeholder-val="{{true}}">
+              <button onClick="{{s.pick}}" aria-current="{{s.current}}" style="{{s.rowStyle}}">
+                <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #667085">Step {{s.n}}</span>
+                <span style="{{s.nameStyle}}">{{s.name}}</span>
+                <span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                  <span style="{{s.pillStyle}}">{{s.pill}}</span>
+                  <span style="font-size: 12px; color: #475467">{{s.who}}</span>
+                </span>
+              </button>
+            </sc-if>
+            <sc-if value="{{s.locked}}" hint-placeholder-val="{{false}}">
+              <div style="{{s.rowStyle}}">
+                <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #667085">Step {{s.n}}</span>
+                <span style="{{s.nameStyle}}">{{s.name}}</span>
+                <span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                  <span style="{{s.pillStyle}}">{{s.pill}}</span>
+                  <span style="font-size: 12px; color: #475467">{{s.who}}</span>
+                </span>
+              </div>
+            </sc-if>
+          </li>
+        </sc-for>
+      </ol>
+    </nav>
+
+    <!-- Form pane -->
+    <section aria-label="Form" class="rw-pane">
+
+      <!-- Form tabs for the current step -->
+      <sc-if value="{{isStep2}}" hint-placeholder-val="{{true}}">
+        <div role="tablist" aria-label="Forms in this step" class="rw-card rw-tabs">
+          <sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+            <button role="tab" onClick="{{t.pick}}" aria-selected="{{t.selected}}" style="{{t.style}}">
+              <span style="{{t.badge}}">{{t.mark}}</span>
+              <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0">
+                <span style="font-size: 14px; font-weight: 600; color: #101828">{{t.label}}</span>
+                <span style="font-size: 12px; color: #475467">{{t.sub}}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- Step 1 · Contractor's submission (read-only) -->
+      <sc-if value="{{isContractor}}" hint-placeholder-val="{{false}}">
+        <div class="rw-card rw-panel">
+          <div class="rw-head">
+            <div style="flex: 1 1 280px; min-width: 0">
+              <h2 class="rw-title">Contractor PTW Request</h2>
+              <div class="rw-sub">Step 1 · Submitted 19 Oct 2026 by sreekutty</div>
+            </div>
+            <span class="rw-pill">Read-only</span>
+          </div>
+          <div class="rw-body">
+            <div class="rw-ref-grid">
+              <sc-for list="{{refSections}}" as="sec" hint-placeholder-count="2">
+                <div class="rw-ref">
+                  <div class="rw-ref-title">{{sec.title}}</div>
+                  <sc-for list="{{sec.rows}}" as="r" hint-placeholder-count="3">
+                    <div class="rw-ref-row">
+                      <span>{{r.k}}</span>
+                      <span>{{r.v}}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+            <div class="rw-files">
+              <div class="rw-eyebrow">Attachments</div>
+              <a href="#" class="rw-file">
+                <span class="rw-file-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6"></path></svg></span>
+                [Risk assessment].pdf
+              </a>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Step 2 · Hazard & safety checklist form -->
+      <sc-if value="{{isReview}}" hint-placeholder-val="{{false}}">
+        <div class="rw-card rw-card--clear rw-panel rw-checklist">
+          <div class="rw-head rw-head--stack">
+            <div class="rw-head-row">
+              <h2 class="rw-title">Hazard &amp; safety checklist</h2>
+              <span class="rw-count">{{answered}} of 6 answered</span>
+            </div>
+            <div class="rw-progress" style="margin-top: 10px"><div style="{{progressBar}}"></div></div>
+          </div>
+          <div class="rw-qlist">
+            <sc-for list="{{questions}}" as="q" hint-placeholder-count="6">
+              <fieldset class="rw-q">
+                <legend class="rw-sr">{{q.text}}</legend>
+                <div class="rw-q-row">
+                  <span class="rw-q-text"><span class="rw-q-n">{{q.n}}.</span> {{q.text}} <span style="color: #B42318">*</span></span>
+                  <div class="rw-opts">
+                    <sc-for list="{{q.opts}}" as="o" hint-placeholder-count="3">
+                      <button onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="{{o.style}}">{{o.label}}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-if value="{{q.needsNote}}" hint-placeholder-val="{{false}}">
+                  <label class="rw-note">
+                    <span style="font-size: 13px; font-weight: 600; color: #B42318">Explain what's missing — this is sent to the contractor</span>
+                    <textarea rows="2" placeholder="e.g. Barricade the north side before work starts"></textarea>
+                  </label>
+                </sc-if>
+              </fieldset>
+            </sc-for>
+          </div>
+          <div class="rw-foot">
+            <sc-if value="{{rowLayout}}" hint-placeholder-val="{{true}}">
+              <div class="rw-actions">
+                <span class="rw-hint rw-actions-hint">{{submitHint}}</span>
+                <div class="rw-actions-row">
+                  <button class="rw-btn rw-btn--danger">Reject permit</button>
+                  <span class="rw-spacer"></span>
+                  <button class="rw-btn rw-btn--secondary">Send back to contractor</button>
+                  <button onClick="{{approve}}" disabled="{{notReady}}" title="{{submitHint}}" style="{{submitStyle}}">Approve &amp; send to HSE</button>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{stackedLayout}}" hint-placeholder-val="{{false}}">
+              <div class="rw-actions rw-actions--stacked">
+                <span class="rw-hint">{{submitHint}}</span>
+                <div class="rw-actions-col">
+                  <button onClick="{{approve}}" disabled="{{notReady}}" title="{{submitHint}}" style="{{submitStyle}}">Approve &amp; send to HSE</button>
+                  <button class="rw-btn rw-btn--secondary">Send back to contractor</button>
+                  <button class="rw-btn rw-btn--danger">Reject permit</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Step 2 · Permit to work form -->
+      <sc-if value="{{isPermit}}" hint-placeholder-val="{{true}}">
+        <div class="rw-card rw-card--clear rw-panel">
+          <div class="rw-head">
+            <h2 class="rw-title">Permit to work</h2>
+          </div>
+          <div class="rw-body">
+            <div class="rw-callout">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0070FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01"></path></svg>
+              <div class="rw-callout-text"><strong>Pre-filled from the contractor's request.</strong> Check each value and correct anything wrong. Changed fields are tracked so the contractor can see what you edited. Open Step 1 on the left to see the original.</div>
+            </div>
+            <div class="rw-fields">
+              <sc-for list="{{permitFields}}" as="p" hint-placeholder-count="6">
+                <label class="rw-field">
+                  <span>{{p.k}}</span>
+                  <input class="rw-input" value="{{p.v}}">
+                </label>
+              </sc-for>
+            </div>
+          </div>
+          <div class="rw-foot rw-foot-row">
+            <span class="rw-hint">Showing 6 of 16 fields</span>
+            <button onClick="{{confirmPermit}}" class="rw-btn rw-btn--primary">Confirm permit details</button>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+  </div>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="TaskWorkspace">
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'permit', ans: { 1: 'yes', 2: 'yes', 3: 'no' }, permitOk: false }; }
+  renderVals() {
+    const Q = ['Work area is isolated and barricaded', 'Gas test done where required', 'Fire extinguisher available at the work location', 'Workers have the required PPE', 'Risk assessment / method statement attached', 'Emergency contacts briefed to the crew'];
+    const answered = Object.keys(this.state.ans).length;
+    const ready = this.state.permitOk && answered >= Q.length;
+
+    // ---- Steps navigator ----
+    const b = 'display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700;flex:none;';
+    const step = this.state.step ?? 's2';
+    const rowBase = 'flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:4px;padding:10px 12px;border-radius:10px;font:inherit;text-align:left;box-sizing:border-box;transition:background-color .15s ease;';
+    const nameOn = 'font-size:14px;font-weight:600;line-height:20px;color:#101828', nameOff = 'font-size:14px;font-weight:500;line-height:20px;color:#475467';
+    const dotBase = 'display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;box-sizing:border-box;font-size:11px;font-weight:700;flex:none;';
+    const pillBase = 'display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:600;';
+    const look = {
+      done: { dot: dotBase + 'background:#067647;color:#FFFFFF', dotMark: '✓', pill: 'Done', pillStyle: pillBase + 'background:#ECFDF3;color:#067647', lineColor: '#12B76A', nameStyle: nameOn },
+      now: { dot: dotBase + 'background:#FFFFFF;border:6px solid #0070FF', dotMark: '', pill: 'In progress', pillStyle: pillBase + 'background:#0070FF;color:#FFFFFF', lineColor: '#E4E7EC', nameStyle: nameOn },
+      next: { dot: dotBase + 'background:#FFFFFF;border:2px solid #98A2B3', dotMark: '', pill: 'Upcoming', pillStyle: pillBase + 'background:#F2F4F7;color:#475467', lineColor: '#E4E7EC', nameStyle: nameOff }
+    };
+    const steps = [
+      { id: 's1', n: '1', name: 'Contractor PTW Request', who: 'sreekutty · 19 Oct', status: 'done', clickable: true },
+      { id: 's2', n: '2', name: 'Supervisor Review', who: 'You', status: 'now', clickable: true },
+      { id: 's3', n: '3', name: '[HSE approval]', who: '[Role]', status: 'next', clickable: false },
+      { id: 's4', n: '4', name: '[Permit issued]', who: '[Role]', status: 'next', clickable: false }
+    ].map((s, i, all) => {
+      const on = s.clickable && step === s.id, L = look[s.status], last = i === all.length - 1;
+      return { ...s, ...L, locked: !s.clickable, current: on ? 'step' : 'false', pick: () => this.setState({ step: s.id }),
+        line: 'flex:1;width:2px;min-height:16px;margin:4px 0;border-radius:2px;background:' + (last ? 'transparent' : L.lineColor),
+        rowStyle: rowBase + (on ? 'background:#EFF4FF;border:1px solid #B2CCFF;cursor:pointer' : s.clickable ? 'background:transparent;border:1px solid transparent;cursor:pointer' : 'background:transparent;border:1px solid transparent') };
+    });
+
+    // ---- Form tabs (current step) ----
+    const tabBase = 'display:flex;align-items:center;gap:10px;min-width:0;min-height:48px;padding:6px 14px 6px 8px;border-radius:9px;font:inherit;text-align:left;cursor:pointer;transition:background-color .15s ease,border-color .15s ease;';
+    const tabs = [
+      { id: 'permit', label: 'Permit to work', sub: this.state.permitOk ? 'Confirmed' : 'Pre-filled · 16 fields to check', done: this.state.permitOk, n: '1' },
+      { id: 'review', label: 'Hazard & safety checklist', sub: `${answered} of ${Q.length} answered`, done: answered >= Q.length, n: '2' }
+    ].map(t => {
+      const on = this.state.tab === t.id;
+      return { ...t, selected: on ? 'true' : 'false', mark: t.done ? '✓' : t.n, pick: () => this.setState({ tab: t.id }),
+        badge: b + (t.done ? 'background:#067647;color:#FFFFFF' : on ? 'background:#0070FF;color:#FFFFFF' : 'background:#F2F4F7;color:#475467'),
+        style: tabBase + (on ? 'background:#EFF4FF;border:1px solid #B2CCFF' : 'background:#FFFFFF;border:1px solid #E4E7EC') };
+    });
+
+    // ---- Supervisor Review questions ----
+    const optBase = 'height:40px;min-width:56px;padding:0 12px;border-radius:8px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;transition:background-color .15s ease,border-color .15s ease;';
+    const colors = { yes: 'background:#ECFDF3;color:#067647;border:1px solid #067647', no: 'background:#FEF3F2;color:#B42318;border:1px solid #B42318', na: 'background:#F2F4F7;color:#344054;border:1px solid #475467' };
+    const questions = Q.map((text, i) => {
+      const n = i + 1, cur = this.state.ans[n];
+      return { n, text, needsNote: cur === 'no',
+        opts: [{ id: 'yes', label: 'Yes' }, { id: 'no', label: 'No' }, { id: 'na', label: 'N/A' }].map(o => ({ ...o, on: cur === o.id ? 'true' : 'false',
+          pick: () => this.setState({ ans: { ...this.state.ans, [n]: o.id } }),
+          style: optBase + (cur === o.id ? colors[o.id] : 'background:#FFFFFF;color:#344054;border:1px solid #D0D5DD') })) };
+    });
+    const permitFields = [
+      { k: 'Work type', v: '[Work type]' }, { k: 'Work location', v: '[Site / area]' }, { k: 'Start', v: '[Date, time]' },
+      { k: 'End', v: '[Date, time]' }, { k: 'Contractor company', v: '[Company]' }, { k: 'Crew size', v: '[n]' }
+    ];
+    const refSections = [
+      { title: 'Work details', rows: [{ k: 'Work type', v: '[Work type]' }, { k: 'Location', v: '[Site / area]' }, { k: 'Window', v: '[Start – end]' }] },
+      { title: 'Hazards & controls', rows: [{ k: 'Hazards identified', v: '[List]' }, { k: 'Controls proposed', v: '[List]' }, { k: 'PPE', v: '[List]' }] }
+    ];
+    const left = Q.length - answered;
+    const layout = this.props.buttonLayout ?? 'row';
+    return {
+      steps, tabs, questions, answered, permitFields, refSections,
+      isStep2: step === 's2', isContractor: step === 's1',
+      isReview: step === 's2' && this.state.tab === 'review', isPermit: step === 's2' && this.state.tab === 'permit',
+      confirmPermit: () => this.setState({ permitOk: true, tab: 'review' }),
+      approved: !!this.state.approved, notApproved: !this.state.approved,
+      // Approving opens the approved task page ("Approved — now with HSE approval" card with Next task / Undo).
+      approve: () => { if (ready) window.location.href = 'task-details-approved.html'; },
+      undoApprove: () => this.setState({ approved: false }),
+      notReady: !ready,
+      submitHint: ready ? 'Both forms complete — ready to approve'
+        : [!this.state.permitOk ? 'confirm the permit details' : '', left > 0 ? `answer ${left} more question${left === 1 ? '' : 's'}` : ''].filter(Boolean).join(' and ').replace(/^./, c => c.toUpperCase()) + ' to approve',
+      rowLayout: layout !== 'stacked', stackedLayout: layout === 'stacked',
+      progressBar: `height:100%;width:${Math.round(answered / Q.length * 100)}%;background:#0070FF;border-radius:999px;transition:width .2s ease`,
+      submitStyle: 'height:44px;padding:0 18px;border-radius:10px;border:0;font:inherit;font-size:14px;font-weight:700;box-sizing:border-box;' + (ready ? 'cursor:pointer;background:#0070FF;color:#FFFFFF;box-shadow:0 1px 2px rgba(16,24,40,0.12)' : 'cursor:not-allowed;background:#E4E7EC;color:#667085')
+    };
+  }
+}
+</script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>

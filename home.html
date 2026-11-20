@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My tasks – collapsible menu · SparkFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter;color:#101828;background:#F5F7FA}
+a{color:#0070FF;text-decoration:none}a:hover{color:#1E3A8A}
+/* Search & filter bar sticks right under the top header. The wrapper's page-colour
+   band (pulled up by the negative margin, so the resting layout is unchanged) hides
+   content scrolling behind the gap and the bar's rounded corners. */
+.sf-sticky-filters{position:sticky;top:64px;z-index:15;margin:-12px -32px 0;padding:12px 32px 0;background:#F5F7FA}
+@media (max-width:640px){.sf-sticky-filters{top:56px}}
+/* Search bar — same component as My Submissions (search, Filters panel, Sort) */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.ms-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;background:#FFFFFF;border:1px solid #E4E7EC;border-radius:12px}
+.ms-search{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;box-sizing:border-box;border-radius:8px;background:#F5F7FA;border:1px solid transparent}
+.ms-search:focus-within{border-color:#84ADFF;background:#FFFFFF}
+.ms-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;font-size:14px;color:#101828}
+.ms-search input::placeholder{color:#667085}
+.ms-fbtn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer}
+.ms-fbtn:hover{background:#F9FAFB}
+.ms-fbtn:focus-visible,.ms-select:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+.ms-fbtn.is-on{border-color:#B2CCFF;background:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-fbadge{min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#0070FF;color:#FFFFFF;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.ms-select{appearance:none;-webkit-appearance:none;max-width:100%;height:40px;padding:0 32px 0 12px;box-sizing:border-box;border:1px solid #D0D5DD;border-radius:8px;background:#FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;font:inherit;font-size:13px;font-weight:500;color:#344054;cursor:pointer;text-overflow:ellipsis}
+.ms-select.is-on{border-color:#B2CCFF;background-color:#EFF4FF;color:#0070FF;font-weight:600}
+.ms-panel{flex:1 1 100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #F2F4F7}
+.ms-panel-label{font-size:13px;font-weight:600;color:#344054}
+.ms-link-btn{height:32px;padding:0 6px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:#0070FF;cursor:pointer;border-radius:6px}
+.ms-link-btn:hover{background:#EFF4FF}
+.ms-link-btn:focus-visible{outline:2px solid #0070FF;outline-offset:2px}
+@media (max-width:640px){
+  .ms-search{flex-basis:100%}
+  .ms-bar > .ms-fbtn,.ms-bar > .ms-sortwrap{flex:1 1 0;min-width:0}
+  .ms-bar > .ms-fbtn{justify-content:center}
+  .ms-sortwrap .ms-select{width:100%}
+  .ms-panel .ms-select{flex:1 1 100%;min-width:0;width:100%}
+  .ms-bar > .sf-viewnav{flex:1 1 100%;margin-left:0 !important}
+  .sf-viewnav > a{flex:1}
+}
+/* Inter only, everywhere (incl. form controls) */
+*,*::before,*::after{font-family:Inter}
+</style>
+</head>
+<body>
+<div id="dc-app" data-root="MyTasks"></div>
+<template data-dc-component="MyTasks">
+<div style="position: relative; min-height: 1240px; display: flex; background: #F5F7FA; font-family: Inter; color: #101828">
+
+  <!-- ================= SIDE MENU (shared: assets/app-shell.js) ================= -->
+  <dc-import name="AppSidebar" active="home"></dc-import>
+
+  <!-- ================= PAGE ================= -->
+  <main style="flex: 1; min-width: 0; box-sizing: border-box; padding: 28px 32px 40px; display: flex; flex-direction: column; gap: 18px">
+
+    <!-- Top header (shared: assets/app-shell.js); welcome line is Home-only -->
+    <dc-import name="AppTopbar" active="home" inset="{{true}}" as-h1="{{true}}" welcome="{{true}}"></dc-import>
+
+    <!-- Filter bar (sticky under the header) -->
+    <div class="sf-sticky-filters">
+      <div class="ms-bar">
+        <label class="ms-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5D6679" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"></path></svg>
+          <span class="sr-only">Search tasks</span>
+          <input type="search" value="{{q}}" onInput="{{onSearch}}" placeholder="Search by task, workflow, site or ID">
+        </label>
+        <button type="button" class="{{filterBtnClass}}" onClick="{{toggleFilters}}" aria-expanded="{{filtersOpen}}" aria-controls="sf-filter-panel">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"></path></svg>
+          Filters
+          <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><span class="ms-fbadge" aria-label="{{activeCount}} active">{{activeCount}}</span></sc-if>
+        </button>
+        <label class="ms-sortwrap">
+          <span class="sr-only">Sort tasks</span>
+          <select class="ms-select" value="{{sort}}" onChange="{{onSort}}">
+            <sc-for list="{{sortOpts}}" as="o" hint-placeholder-count="2">
+              <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+            </sc-for>
+          </select>
+        </label>
+        <nav aria-label="View" class="sf-viewnav" style="margin-left: auto; display: flex; gap: 4px; background: #E9EDF3; padding: 3px; border-radius: 10px">
+          <a href="home.html" aria-current="page" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; background: #FFFFFF; font-size: 13px; font-weight: 600; color: #101828; box-shadow: 0 1px 2px rgba(16,24,40,.08)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v18H3zM14 3h7v11h-7z"></path></svg>Board</a>
+          <a href="list-view.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #475467"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>List</a>
+        </nav>
+        <sc-if value="{{filtersOpen}}" hint-placeholder-val="{{false}}">
+          <div class="ms-panel" id="sf-filter-panel" role="group" aria-label="Filters">
+            <span class="ms-panel-label">Filter by</span>
+            <sc-for list="{{filterDefs}}" as="f" hint-placeholder-count="3">
+              <label style="display: contents">
+                <span class="sr-only">{{f.label}}</span>
+                <select class="{{f.cls}}" value="{{f.value}}" onChange="{{f.on}}">
+                  <sc-for list="{{f.opts}}" as="o" hint-placeholder-count="3">
+                    <option value="{{o.value}}" selected="{{o.sel}}">{{o.label}}</option>
+                  </sc-for>
+                </select>
+              </label>
+            </sc-for>
+            <sc-if value="{{activeCount}}" hint-placeholder-val="{{false}}"><button type="button" class="ms-link-btn" onClick="{{clearFilters}}">Clear filters</button></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- Claim toast -->
+    <sc-if value="{{toast}}" hint-placeholder-val="{{false}}">
+      <div role="status" style="{{toastStyle}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6CE9A6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span style="flex: 1 1 280px">{{toast}}</span>
+        <button onClick="{{undo}}" style="height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.3); background: transparent; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Undo</button>
+      </div>
+    </sc-if>
+
+    <!-- Board -->
+    <div style="display: flex; gap: 16px; align-items: stretch; overflow-x: auto; padding-bottom: 4px">
+      <sc-for list="{{cols}}" as="c" hint-placeholder-count="3">
+        <section aria-label="{{c.label}}" style="{{c.style}}">
+          <div style="display: flex; flex-direction: column; gap: 4px; padding: 2px 4px">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span style="{{c.dot}}"></span>
+              <h2 style="margin: 0; font-size: 15px; font-weight: 700">{{c.label}}</h2>
+              <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #FFFFFF; color: #344054">{{c.count}}</span>
+            </div>
+            <span style="font-size: 12px; color: #475467">{{c.hint}}</span>
+          </div>
+          <sc-if value="{{c.empty}}" hint-placeholder-val="{{false}}">
+            <div style="padding: 18px; border-radius: 12px; border: 1px dashed #C7CFDB; font-size: 13px; color: #475467; text-align: center">{{c.empty}}</div>
+          </sc-if>
+          <sc-for list="{{c.cards}}" as="k" hint-placeholder-count="3">
+            <article style="{{k.cardStyle}}">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="font-size: 12px; font-weight: 600; color: #475467">{{k.workflow}}</span>
+                <span style="flex: 1"></span>
+                <span style="font-family: Inter; font-size: 11px; color: #5D6679">{{k.id}}</span>
+              </div>
+              <h3 style="margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3">{{k.title}}</h3>
+              <!-- Project / Site -->
+              <sc-if value="{{k.project}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 13px; line-height: 18px; color: #344054">
+                <span title="Project: {{k.project}}" style="display: flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none" aria-label="Project" role="img"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                  <span style="min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.project}}</span>
+                </span>
+                <span title="Site: {{k.site}}" style="display: flex; align-items: center; gap: 6px; flex: 0 0 auto; max-width: 50%; min-width: 0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none" aria-label="Site" role="img"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path></svg>
+                  <span style="min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{k.site}}</span>
+                </span>
+              </div>
+              </sc-if>
+              <sc-if value="{{k.context}}" hint-placeholder-val="{{false}}"><div style="font-size: 12px; color: #667085">{{k.context}}</div></sc-if>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <sc-if value="{{k.recurring}}" hint-placeholder-val="{{false}}">
+                  <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #ECFDFF; color: #0E7090">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                    {{k.recurring}}
+                  </span>
+                </sc-if>
+                <sc-if value="{{k.pool}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #FFFFFF; border: 1px solid #FEDF89; color: #93370D">{{k.pool}}</span></sc-if>
+                <sc-if value="{{k.justClaimed}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #ECFDF3; color: #067647">Claimed by you</span></sc-if>
+                <sc-if value="{{k.high}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px; background: #FFF6ED; color: #B93815">High</span></sc-if>
+              </div>
+              <sc-if value="{{k.step}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475467"><span>{{k.step}}</span><span>{{k.next}}</span></div>
+                  <sc-if value="{{k.bar}}" hint-placeholder-val="{{false}}">
+                    <div style="height: 6px; border-radius: 999px; background: #EEF0F3; overflow: hidden"><div style="{{k.bar}}"></div></div>
+                  </sc-if>
+                </div>
+              </sc-if>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                <span style="{{k.dueStyle}}">{{k.due}}</span>
+                <span style="flex: 1"></span>
+                <sc-if value="{{k.taken}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; color: #475467">{{k.taken}}</span></sc-if>
+                <sc-if value="{{k.canClaim}}" hint-placeholder-val="{{false}}">
+                  <button onClick="{{k.claim}}" style="height: 40px; padding: 0 16px; border-radius: 9px; border: 0; background: #F79009; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer">Claim</button>
+                </sc-if>
+                <sc-if value="{{k.action}}" hint-placeholder-val="{{true}}"><a href="task-details.html" style="{{k.btnStyle}}">{{k.action}}</a></sc-if>
+              </div>
+            </article>
+          </sc-for>
+          <sc-if value="{{c.more}}" hint-placeholder-val="{{false}}"><a href="#" style="text-align: center; padding: 8px; font-size: 13px; font-weight: 600">{{c.more}}</a></sc-if>
+        </section>
+      </sc-for>
+
+      <!-- Completed: collapsed rail -->
+      <sc-if value="{{doneCollapsed}}" hint-placeholder-val="{{true}}">
+        <button onClick="{{toggleDone}}" aria-expanded="false" aria-label="Show completed tasks (322)" style="flex: 0 0 64px; min-height: 560px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 14px 0; border-radius: 16px; border: 1px solid #ABEFC6; background: #F6FEF9; font: inherit; cursor: pointer">
+          <span style="width: 32px; height: 32px; border-radius: 9px; background: #FFFFFF; border: 1px solid #ABEFC6; display: flex; align-items: center; justify-content: center; color: #067647; font-size: 16px; font-weight: 700">‹</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#067647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3"></path></svg>
+          <span style="font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #ECFDF3; color: #067647">322</span>
+          <span style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 14px; font-weight: 700; color: #101828; letter-spacing: 0.02em">Completed</span>
+          <span style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12px; color: #475467">+5 this week</span>
+        </button>
+      </sc-if>
+
+      <!-- Completed: expanded -->
+      <sc-if value="{{doneOpen}}" hint-placeholder-val="{{false}}">
+      <section aria-label="Completed" style="flex: 0 0 300px; display: flex; flex-direction: column; gap: 10px; padding: 14px; background: #FFFFFF; border: 1px solid #ABEFC6; border-radius: 16px">
+        <div style="display: flex; align-items: flex-start; gap: 8px; padding: 2px 4px">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #12B76A"></span>
+              <h2 style="margin: 0; font-size: 15px; font-weight: 700">Completed</h2>
+              <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #ECFDF3; color: #067647">322</span>
+            </div>
+            <span style="font-size: 12px; color: #475467">Last 14 days · repeats grouped</span>
+          </div>
+          <button onClick="{{toggleDone}}" aria-expanded="true" aria-label="Collapse completed" style="width: 32px; height: 32px; border-radius: 9px; border: 1px solid #D0D5DD; background: #FFFFFF; color: #344054; font-size: 16px; font-weight: 700; cursor: pointer">›</button>
+        </div>
+        <sc-for list="{{done}}" as="d" hint-placeholder-count="5">
+          <a href="#" style="display: flex; gap: 10px; padding: 10px; border-radius: 10px; background: #F9FAFB; color: #101828">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#067647" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px" aria-hidden="true"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3"></path></svg>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <span style="font-size: 13px; font-weight: 600">{{d.title}}</span>
+              <span style="font-size: 12px; color: #5D6679">{{d.meta}}</span>
+            </span>
+            <sc-if value="{{d.n}}" hint-placeholder-val="{{false}}"><span style="align-self: flex-start; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: #EEF0F3; color: #344054">×{{d.n}}</span></sc-if>
+          </a>
+        </sc-for>
+        <a href="list-view.html" style="text-align: center; padding: 8px; font-size: 13px; font-weight: 600">Search full history →</a>
+      </section>
+      </sc-if>
+    </div>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-component="MyTasks">
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { claimed: [], view: 'all', last: null, q: '', project: '', site: '', priority: '', sort: 'urgent', filtersOpen: false };
+  }
+  // Sidebar and top header (incl. hover preview / pin) live in assets/app-shell.js.
+  renderVals() {
+    // ---- theme from one accent ----
+    const A = this.props.accent ?? '#0070FF';
+    const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+    const mix = (h, to, t) => { const a = hex(h), b = hex(to); return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+    const AL = mix(A, '#FFFFFF', 0.9), AB = mix(A, '#FFFFFF', 0.65), AD = mix(A, '#000000', 0.72), AH = mix(A, '#000000', 0.2);
+
+    // ---- board ----
+    const filters = ['Project', 'Site', 'Priority'];
+    const chip = (bg, fg) => `display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:${bg};color:${fg}`;
+    const overdue = chip('#FEF3F2', '#B42318'), nodue = chip('#F2F4F7', '#475467'), soon = chip(AL, AH), today = chip('#FFFAEB', '#B54708');
+    const card = 'display:flex;flex-direction:column;gap:10px;padding:14px;background:#FFFFFF;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.06);';
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 16px;border-radius:9px;font-size:14px;font-weight:600;';
+    const primary = btn + `background:${A};color:#FFFFFF`, ghost = btn + `background:${AL};color:${AH}`;
+    const bar = (p, c) => `height:100%;width:${p}%;background:${c};border-radius:999px`;
+    const dot = c => `width:10px;height:10px;border-radius:50%;background:${c}`;
+
+    const OPEN = [
+      { key: 'o1', workflow: 'Corrective action', id: 'CT-213', title: 'Clean Oil Spill', project: 'Bangalore Metro Phase 2', site: 'Hebbal Terminal', context: 'Area B · Loading bay', pool: 'HSE Dept · 6 can claim', due: 'Due today', dueStyle: today, high: true, type: 'corrective' },
+      { key: 'o2', workflow: 'Fire Safety Check', id: 'INS-031', title: 'Daily fire extinguisher check', project: 'Whitefield Tech Park', site: 'Tower C', context: 'All floors', pool: 'Site Engineers · 4 can claim', recurring: 'Daily · today’s run', due: 'Due today, 6 PM', dueStyle: today, type: 'recurring' },
+      { key: 'o3', workflow: 'Hot Work Permit', id: '04A13441', title: 'Inspection of Work Area', project: '', site: '', context: 'Hot work area', pool: 'Site Engineers', due: 'Due 18 Nov', dueStyle: soon, taken: 'Claimed by [colleague] · 4 min ago', type: 'other' }
+    ];
+    const claimed = this.state.claimed, view = this.state.view;
+    // ---- search bar: text search, Project / Site / Priority filters, sort ----
+    const S = this.state;
+    const q = S.q.trim().toLowerCase();
+    const narrowed = !!(q || S.project || S.site || S.priority);
+    const hit = t => !q || [t.title, t.workflow, t.id, t.project, t.site, t.context, t.pool].some(v => v && v.toLowerCase().includes(q));
+    const match = t => (view === 'all' || t.type === view) && hit(t)
+      && (!S.project || t.project === S.project) && (!S.site || t.site === S.site)
+      && (!S.priority || (S.priority === 'High') === !!t.high);
+    // Due-date order: overdue first, then by day (today = 20 Nov in this prototype), undated last.
+    const dueRank = d => /overdue/i.test(d) ? -1 : /today/i.test(d) ? 20 : Number((/(\d{1,2}) Nov/.exec(d) || [0, 999])[1]);
+    const order = arr => S.sort === 'due' ? arr.map((c, i) => [c, i]).sort((a, b) => dueRank(a[0].due) - dueRank(b[0].due) || a[1] - b[1]).map(x => x[0]) : arr;
+    const openCards = OPEN.filter(o => !claimed.includes(o.key)).filter(match).map(o => ({ ...o, canClaim: !o.taken, action: '',
+      claim: () => this.setState({ claimed: [...claimed, o.key], last: o.key }),
+      cardStyle: card + (o.taken ? 'border:1px solid #E4E7EC;opacity:.6' : 'border:1px solid #FEDF89') }));
+    const claimedCards = OPEN.filter(o => claimed.includes(o.key)).filter(match).map(o => ({ ...o, pool: '', justClaimed: true, canClaim: false,
+      bar: '',action: 'Start', btnStyle: primary, cardStyle: card + 'border:1.5px solid #6CE9A6' }));
+    const TOSTART_ALL = [
+      { workflow: 'Site Safety Inspection', id: 'INS-019', title: 'Weekly site safety inspection', project: 'Electronic City Warehouse', site: 'Block 4', context: '', recurring: 'Recurring Task', due: 'Due Fri, 20 Nov', dueStyle: soon, action: 'Start', btnStyle: ghost, type: 'recurring' },
+      { workflow: 'Permit To Work', id: 'INS0499', title: 'Supervisor Review', project: 'Bangalore Metro Phase 2', site: 'Hebbal Terminal', context: 'Requested by sreekutty', due: 'No due date', dueStyle: nodue, action: 'Start', btnStyle: ghost, type: 'other' },
+      { workflow: 'Hot Work Permit', id: 'WF-0121', title: 'Safety Inspection', project: '', site: '', context: '', due: 'No due date', dueStyle: nodue, action: 'Start', btnStyle: ghost, type: 'other' }
+    ];
+    const TOSTART = TOSTART_ALL.filter(match).map(t => ({ ...t, cardStyle: card + 'border:1px solid #E4E7EC' }));
+    const INPROG_ALL = [
+      { workflow: 'Incident Reporting', id: 'WF-0052', title: 'Supervisor Initial Review', project: '', site: '', context: '', due: 'Overdue · 211 days', dueStyle: overdue, high: true, step: 'Progress', next: 'Next: HSE Lead', bar: bar(45, A), action: 'Continue', btnStyle: primary, type: 'other', late: true },
+      { workflow: 'Corrective action', id: 'CT-214', title: 'Replace damaged guard rail', project: 'Electronic City Warehouse', site: 'Dock 2', context: 'From incident WF-0098', due: 'Due 19 Nov', dueStyle: soon, step: 'Progress', next: 'Next: HSE verify', bar: bar(50, A), action: 'Continue', btnStyle: primary, type: 'corrective' },
+      { workflow: 'Incident Investigation', id: 'WF-0098', title: 'Investigate – Supervisor', project: '', site: '', context: '', due: 'No due date', dueStyle: nodue, step: 'Progress', next: 'Next: Verify CAPA', bar: bar(50, A), action: 'Continue', btnStyle: primary, type: 'other' }
+    ];
+    const INPROG = INPROG_ALL.filter(match).map(t => ({ ...t, cardStyle: card + (t.late ? 'border:1.5px solid #FDA29B' : 'border:1px solid #E4E7EC') }));
+    const colBase = 'flex:1 1 0;min-width:280px;display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:16px;';
+    const openLive = OPEN.filter(o => !claimed.includes(o.key) && !o.taken).length;
+    const cols = [
+      { label: 'Open · claim', count: narrowed ? String(openCards.length) : String(openLive), dot: dot('#F79009'), hint: 'Shared with your team — first to claim gets it', cards: order(openCards),
+        empty: openCards.length ? '' : narrowed ? 'No matching tasks.' : 'Nothing to claim right now. New team tasks appear here.', style: colBase + 'background:#FFF8EB;border:1px solid #FEDF89', more: '' },
+      { label: 'To start', count: narrowed ? String(claimedCards.length + TOSTART.length) : String(6 + claimed.length), dot: dot('#7A5AF8'), hint: 'Assigned to you or claimed', cards: order([...claimedCards, ...TOSTART]),
+        empty: narrowed && !(claimedCards.length + TOSTART.length) ? 'No matching tasks.' : '', style: colBase + 'background:#EDF0F5', more: view === 'all' && !narrowed ? 'Show 3 more' : '' },
+      { label: 'In progress', count: narrowed ? String(INPROG.length) : '4', dot: dot('#1BBBFE'), hint: 'Started, not submitted', cards: order(INPROG),
+        empty: INPROG.length ? '' : narrowed ? 'No matching tasks.' : 'Nothing in progress for this view.', style: colBase + 'background:#EDF0F5', more: view === 'all' && !narrowed ? 'Show 1 more' : '' }
+    ];
+    const views = [
+      { id: 'all', label: 'All tasks', count: '' },
+      { id: 'recurring', label: 'Recurring', count: '2', icon: 'M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3' },
+      { id: 'corrective', label: 'Corrective actions', count: '2' }
+    ].map(v => ({ ...v, on: view === v.id ? 'true' : 'false', pick: () => this.setState({ view: v.id }),
+      style: 'display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;' + (view === v.id ? `background:${AD};color:#FFFFFF;border:1px solid ${AD}` : 'background:#FFFFFF;color:#344054;border:1px solid #D0D5DD') }));
+    const done = [
+      { title: 'Clean Oil Spill', meta: 'CT-210, 211, 212 · 2–6 Nov', n: '3' },
+      { title: 'Investigate – Supervisor', meta: 'Incident Investigation · 2–5 Nov', n: '3' },
+      { title: 'Assign a Resource', meta: 'Hebbal Terminal · 23 Oct–5 Nov', n: '2' },
+      { title: 'Weekly site safety inspection', meta: 'Recurring · 13 Nov', n: '' },
+      { title: 'Inspection of Work Area', meta: 'Hot Work Permit · 16 Oct', n: '' }
+    ].filter(d => !q || [d.title, d.meta].some(v => v.toLowerCase().includes(q)));
+
+    // Filter options (Project / Site from the board's tasks) and sort options
+    const ALLTASKS = [...OPEN, ...TOSTART_ALL, ...INPROG_ALL];
+    const uniq = k => [...new Set(ALLTASKS.map(t => t[k]).filter(Boolean))].sort();
+    const opts = (key, prefix, values) => [{ value: '', label: `${prefix}: All`, sel: !S[key] }]
+      .concat(values.map(v => ({ value: v, label: `${prefix}: ${v}`, sel: S[key] === v })));
+    const filterDefs = [
+      { key: 'project', label: 'Project', values: uniq('project') },
+      { key: 'site', label: 'Site', values: uniq('site') },
+      { key: 'priority', label: 'Priority', values: ['High', 'Normal'] }
+    ].map(f => ({ label: f.label, value: S[f.key], opts: opts(f.key, f.label, f.values),
+      cls: 'ms-select' + (S[f.key] ? ' is-on' : ''), on: e => this.setState({ [f.key]: e.target.value }) }));
+    const activeCount = ['project', 'site', 'priority'].filter(k => S[k]).length;
+    const SORTS = [{ value: 'urgent', label: 'Sort: Most urgent' }, { value: 'due', label: 'Sort: Due date' }];
+    const last = OPEN.find(o => o.key === this.state.last);
+    const toast = last && claimed.includes(last.key) ? `You claimed “${last.title}” — it’s now yours in To start, and removed from your team’s Open list.` : '';
+    const doneOpen = !!this.state.doneOpen;
+
+    return {
+      filters, views, cols, done, toast, doneOpen, doneCollapsed: !doneOpen,
+      q: S.q, sort: S.sort, filtersOpen: S.filtersOpen, filterDefs,
+      activeCount: activeCount ? String(activeCount) : '',
+      sortOpts: SORTS.map(o => ({ ...o, sel: S.sort === o.value })),
+      filterBtnClass: 'ms-fbtn' + (S.filtersOpen || activeCount ? ' is-on' : ''),
+      onSearch: e => this.setState({ q: e.target.value }),
+      onSort: e => this.setState({ sort: e.target.value }),
+      toggleFilters: () => this.setState({ filtersOpen: !S.filtersOpen }),
+      clearFilters: () => this.setState({ project: '', site: '', priority: '' }),
+      primaryLg: `display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;background:${A};color:#FFFFFF;font-weight:600;font-size:14px`,
+      toastStyle: `display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:${AD};color:#FFFFFF;font-size:14px;flex-wrap:wrap`,
+      toggleDone: () => this.setState({ doneOpen: !doneOpen }),
+      undo: () => this.setState({ claimed: claimed.filter(k => k !== this.state.last), last: null })
+    };
+  }
+}
+</script>
+<script src="assets/app-shell.js"></script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>
